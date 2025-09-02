@@ -41,6 +41,9 @@ button{
     font-size: 18px;
     background-color: #8CC8DA;
 }
+button:hover {
+  filter: brightness(85%); 
+}
 
 input {
     height: 40px;
@@ -61,5 +64,4 @@ p{
 a {
     color:black;
 }
-
 

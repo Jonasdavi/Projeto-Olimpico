@@ -1,31 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+  <title>Login</title>
 </head>
 <body>
-    <img class="imagem" src="img/inicial.png">
+  <img class="imagem" src="img/inicial.png">
 
-<div class="login">
-
+  <div class="login">
     <h1>Login</h1>
     
-  <form>
-    <label for="usuario">Usuário:</label>
-    <input type="text" id="usuario" name="usuario" required><br>
+    <form id="loginForm" novalidate>
+      <label for="usuario">Usuário:</label>
+      <input type="text" id="usuario" name="usuario" required>
+      <div class="error-message" id="usuarioError">Por favor, preencha o usuário.</div><br>
 
-    <label for="senha">Senha:</label>
-    <input type="password" id="senha" name="senha" required><br>
+      <label for="senha">Senha:</label>
+      <input type="password" id="senha" name="senha" required>
+      <div class="error-message" id="senhaError">Por favor, preencha a senha.</div><br>
 
-    <button type="submit">Acessar</button>
-  </form>
-<br>
-<p> <a href="#">Esqueceu a senha?</a> </p>
-<p> <a href="./../cadastro/index.html">Não tem conta? Cadastre-se aqui</a> </p>
-  
-</div>
+      <button class="hover" type="submit">Acessar</button>
+    </form>
+    <br>
+    <p><a href="#">Esqueceu a senha?</a></p>
+    <p><a href="./../cadastro/index.html">Não tem conta? Cadastre-se aqui</a></p>
+  </div>
 </body>
 </html>

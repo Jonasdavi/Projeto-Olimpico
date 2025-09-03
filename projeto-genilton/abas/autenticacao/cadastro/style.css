@@ -1,0 +1,235 @@
+body {
+    margin: 0;
+    padding: 20px;
+    height: 100vh; 
+    display: flex;
+    justify-content: center; 
+    align-items: center;   
+    background-color: #8CC8DA; 
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+    max-width: 620px;
+    margin: auto;
+    background-color: #047b9f;
+    padding: 20px 25px 30px 25px;
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+  }
+
+.top-link {
+    font-size: 0.95rem;
+    text-align: left;
+    padding-left: 5px;
+    margin-bottom: 15px;
+  }
+
+.top-link a {
+    background-color: #cce4f7;
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-block;
+    box-shadow: 0 2px 5px rgba(26, 69, 138, 0.3);
+    transition: background-color 0.3s ease;
+    color:black;
+  }
+
+.top-link a:hover {
+    background-color: #8CC8DA;
+  }
+
+h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 25px;
+  }
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+  }
+.tab-btn {
+    cursor: pointer;
+    padding: 10px 26px;
+    font-weight: 700;
+    background: #e2eaf3;
+    border: none;
+    border-radius: 8px 8px 0 0;
+    margin: 0 8px;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+.tab-btn.active {
+    background: #2a4d69;
+    color: white;
+  }
+.form-container {
+    border-top: 2px solid #2a4d69;
+    padding-top: 15px;
+  }
+.form-content {
+    display: none;
+  }
+.form-content.active {
+    display: block;
+  }
+label {
+    font-weight: 600;
+    margin-top: 18px;
+    display: block;
+    color: black;
+}
+  input[type="text"], input[type="email"], input[type="password"], select {
+    width: 100%;
+    padding: 8px 12px;
+    margin-top: 6px;
+    border: 1.5px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus {
+    border-color: #2a4d69;
+    outline: none;
+}
+  input[type="radio"] {
+    margin-right: 7px;
+    cursor: pointer;
+  }
+.inline-group {
+    display: flex;
+    justify-content: center;  /* centraliza todo o grupo horizontalmente */
+    align-items: right;      /* alinha verticalmente o grupo */
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin-left: 20px;
+    margin-right: 20px;
+    font-family: Arial, monospace;
+}
+
+.inline-group label {
+    display: flex;            /* transforma label em flex container */
+    flex-direction: column;   /* coloca o texto abaixo da bolinha, se for multiline */
+    align-items: center;      /* centraliza horizontalmente dentro do label */
+    font-weight: 500;
+    margin-left: 20px;
+    margin-right: 20px;
+    cursor: pointer;
+    gap: 4px;                 /* espaço entre bolinha e texto */
+}
+
+  .error-message {
+    color: #d93025;
+    font-size: 0.85rem;
+    margin-top: 3px;
+    display: none;
+  }
+  input.error, select.error {
+    border-color: #d93025;
+  }
+  input[type="submit"] {
+    background-color: #2a4d69;
+    color: white;
+    border: none;
+    margin-top: 15px;
+    padding: 14px 0;
+    font-size: 1.15rem;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+  }
+  input[type="submit"]:hover {
+    background-color: #22435a;
+  }
+  /* Botão Adicionar professor minimalista */
+  .add-prof-btn {
+    width: 32px;
+    height: 32px;
+    font-weight: 700;
+    font-size: 20px;
+    margin-left: 5px;
+    border-radius: 6px;
+    border:none;
+    background-color: #2a4d69;
+    color: white;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background-color 0.3s ease;
+  }
+  .add-prof-btn:hover {
+    background-color: #22435a;
+  }
+  #listaProfessoresSelecionados {
+    list-style: none;
+    padding-left: 15px;
+    max-height: 120px;
+    overflow-y: auto;
+    margin-top: 6px;
+    border-left: 2px solid #2a4d69;
+    color: #555;
+    font-size: 0.9rem;
+  }
+  #listaProfessoresSelecionados li {
+    margin-bottom: 4px;
+    padding-left: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 3px;
+    background: #eff6ff;
+  }
+  #listaProfessoresSelecionados li button {
+    background: transparent;
+    border: none;
+    color: #c93025;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  /* Estilo das sugestões aniversário */
+  #autocompleteList {
+    border: 1px solid #ccc;
+    border-top: none;
+    max-height: 130px;
+    overflow-y: auto;
+    position: absolute;
+    background: white;
+    width: 100%;
+    z-index: 1000;
+  }
+  #autocompleteList div {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-top: 1px solid #ccc;
+  }
+  #autocompleteList div:hover {
+    background-color: #e0e7ff;
+  }
+  .relative-container {
+    position: relative;
+    width: 100%;
+  }
+
+label {
+  color: black;
+}
+
+input {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+button{
+    border-radius: 35px;
+    border: none;
+    height: 45px;
+    font-size: 18px;
+    background-color: #8CC8DA;
+}

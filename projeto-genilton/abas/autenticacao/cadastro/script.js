@@ -312,3 +312,15 @@ btnAddProfessor.addEventListener('click', () => {
   listaProfessoresSelecionados.appendChild(li);
   inputProfessor.value = '';
 });
+
+
+//CODIGO JONAS - BACKEND
+function inserirProfBackend(){
+
+}
+function inserirAlunoBackend(){
+
+}
+function getProfessoresCadastrados(){
+
+}

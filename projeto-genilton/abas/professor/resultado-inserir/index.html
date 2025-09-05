@@ -369,7 +369,10 @@
       return;
     }
 
-    let html = '<table><thead><tr><th>Aluno</th><th>Nota</th><th>Premiação</th></tr></thead><tbody>';
+    let html = `
+    <button>Publicar</button>
+    <p>Ao publicar você deixa essas medalhas visiveis para os alunos em seus perfis (por padrão deixa visivel após a data que você definiu como resultado).</p>
+    <table><thead><tr><th>Aluno</th><th>Nota</th><th>Premiação</th></tr></thead><tbody>`;
     for (const m of medalhistas) {
       html += `<tr><td>${m.aluno}</td><td>${m.nota}</td><td>${m.premiacao}</td></tr>`;
     }

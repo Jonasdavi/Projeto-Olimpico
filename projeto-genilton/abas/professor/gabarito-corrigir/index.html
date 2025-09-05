@@ -35,10 +35,10 @@
     margin-top: 15px;
     margin-bottom: 6px;
   }
-  #searchInput {
+  #modelo-gaba {
     width: 100%;
     padding: 8px 12px;
-    margin: 0 0 20px 0;
+    margin: 0 0 10px 0;
     border-radius: 6px;
     border: 1px solid #30363d;
     background-color: #0d1117;
@@ -46,7 +46,7 @@
     font-size: 14px;
     box-sizing: border-box;
   }
-  #searchInput::placeholder {
+  #modelo-gaba::placeholder {
     color: #8b949e;
   }
   button {
@@ -59,7 +59,11 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
-  button:hover {
+  button:disabled {
+    background-color: #444c56;
+    cursor: not-allowed;
+  }
+  button:hover:enabled {
     background-color: #2ea043;
   }
   .cancel-button {
@@ -182,8 +186,9 @@
     max-height: 80px;
     overflow-y: auto;
     position: absolute;
-    width: 180px;
+    width: 100%;
     z-index: 10;
+    box-sizing: border-box;
   }
   .suggestions div {
     padding: 5px 8px;
@@ -192,12 +197,30 @@
   .suggestions div:hover {
     background-color: #30363d;
   }
+  #searchInput {
+  width: 100%;
+  padding: 8px 12px;
+  margin: 0 0 20px 0;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background-color: #0d1117;
+  color: #c9d1d9;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+#searchInput::placeholder {
+  color: #8b949e;
+}
+
 </style>
 </head>
 <body>
 <div class="container">
   <h1>Correção de Gabarito da Olimpíada</h1>
-  <button id="addGabaritoBtn">+ Adicionar Gabarito</button>
+  <label for="modelo-gaba">Selecione aqui a olimpíada a ser corrigida (precisa estar cadastrada)</label>
+  <input type="text" id="modelo-gaba" placeholder="exemplo: OBMEP" autocomplete="off" />
+  <button id="addGabaritoBtn" disabled>+ Adicionar Gabarito</button>
 
   <div id="expandedContainer"></div>
 
@@ -208,12 +231,65 @@
 </div>
 
 <script>
+  const olimpiadasExemplo = [
+    "OBMEP",
+    "Olimpíada Brasileira de Matemática",
+    "Olimpíada Paulista de Astronomia",
+    "Olimpíada de Física",
+    "Olimpíada de Química"
+  ];
+
   const alunosCadastrados = ['Ana Silva', 'Bruno Souza', 'Carlos Lima', 'Diana Pereira', 'Eduardo Gomes', 'Fernanda Rocha'];
   const addBtn = document.getElementById('addGabaritoBtn');
   const expandedContainer = document.getElementById('expandedContainer');
   const compactContainer = document.getElementById('compactContainer');
   const searchInput = document.getElementById('searchInput');
+  const modeloGabaInput = document.getElementById('modelo-gaba');
   const nomesConfirmados = new Set();
+
+  const suggestions = document.createElement('div');
+  suggestions.className = 'suggestions';
+  modeloGabaInput.parentNode.insertBefore(suggestions, modeloGabaInput.nextSibling);
+
+  // Inicialmente o botão está desabilitado
+  addBtn.disabled = true;
+
+  modeloGabaInput.addEventListener('input', () => {
+    const val = modeloGabaInput.value.toLowerCase();
+    suggestions.innerHTML = '';
+    addBtn.disabled = true;
+    if (!val) {
+      suggestions.style.display = 'none';
+      return;
+    }
+    const filtered = olimpiadasExemplo.filter(o => o.toLowerCase().includes(val));
+    if (filtered.length === 1 && filtered[0].toLowerCase() === val) {
+      addBtn.disabled = false; // habilita botão se exato
+    }
+    if (filtered.length === 0) {
+      suggestions.style.display = 'none';
+      return;
+    }
+    filtered.forEach(item => {
+      const div = document.createElement('div');
+      div.textContent = item;
+      div.addEventListener('click', () => {
+        modeloGabaInput.value = item;
+        suggestions.style.display = 'none';
+        addBtn.disabled = false; // habilita botão ao selecionar
+      });
+      suggestions.appendChild(div);
+    });
+    suggestions.style.display = 'block';
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!modeloGabaInput.contains(e.target) && !suggestions.contains(e.target)) {
+      suggestions.style.display = 'none';
+    }
+  });
+
+  // Resto do código original para criação e manipulação dos gabaritos segue abaixo...
 
   function createExpandedEntry() {
     const entry = document.createElement('div');
@@ -250,9 +326,9 @@
     labelNome.htmlFor = nomeInputId;
     labelNome.textContent = 'Nome do aluno';
 
-    const suggestions = document.createElement('div');
-    suggestions.className = 'suggestions';
-    suggestions.style.display = 'none';
+    const suggestionsAluno = document.createElement('div');
+    suggestionsAluno.className = 'suggestions';
+    suggestionsAluno.style.display = 'none';
 
     const erroDuplicado = document.createElement('div');
     erroDuplicado.className = 'erro';
@@ -261,7 +337,7 @@
 
     nomeWrapper.appendChild(labelNome);
     nomeWrapper.appendChild(nomeInput);
-    nomeWrapper.appendChild(suggestions);
+    nomeWrapper.appendChild(suggestionsAluno);
     nomeWrapper.appendChild(erroDuplicado);
 
     const labelGabarito = document.createElement('label');
@@ -294,8 +370,6 @@
 
     let editingOldName = null;
 
-    // Quando clicar em "+ Adicionar Gabarito" principal, já cria a entrada e clica no input file
-    // Para isso, precisamos expor a criação da entrada e disparar o click do input
     entry.openFileDialog = () => fileInput.click();
 
     btnExcluir.addEventListener('click', () => {
@@ -323,14 +397,14 @@
     nomeInput.addEventListener('input', () => {
       const val = nomeInput.value.toLowerCase();
       erroDuplicado.style.display = 'none';
-      suggestions.innerHTML = '';
+      suggestionsAluno.innerHTML = '';
       if (!val) {
-        suggestions.style.display = 'none';
+        suggestionsAluno.style.display = 'none';
         return;
       }
       const filtered = alunosCadastrados.filter((a) => a.toLowerCase().includes(val));
       if (filtered.length === 0) {
-        suggestions.style.display = 'none';
+        suggestionsAluno.style.display = 'none';
         return;
       }
       filtered.forEach((aluno) => {
@@ -338,17 +412,17 @@
         div.textContent = aluno;
         div.addEventListener('click', () => {
           nomeInput.value = aluno;
-          suggestions.style.display = 'none';
+          suggestionsAluno.style.display = 'none';
           erroDuplicado.style.display = 'none';
         });
-        suggestions.appendChild(div);
+        suggestionsAluno.appendChild(div);
       });
-      suggestions.style.display = 'block';
+      suggestionsAluno.style.display = 'block';
     });
 
     document.addEventListener('click', (e) => {
       if (!nomeWrapper.contains(e.target)) {
-        suggestions.style.display = 'none';
+        suggestionsAluno.style.display = 'none';
       }
     });
 
@@ -378,7 +452,6 @@
       filterCompactList(searchInput.value);
     });
 
-    // Função para preencher campos ao editar
     function fillFields(nome, gabarito, imgSrc) {
       editingOldName = nome;
       nomeInput.value = nome;

@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard Professor</title>
+<style>
+  /* Reset basico */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body, html {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f6f8fa;
+    color: #24292e;
+  }
+
+  /* Layout */
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background-color: #24292e;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+    transition: transform 0.3s ease;
+    position: relative;
+  }
+
+  .sidebar.closed {
+    transform: translateX(-250px);
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 0 20px 30px 20px;
+    color: white;
+    border-bottom: 1px solid #444c56;
+  }
+
+  .menu {
+    list-style: none;
+    flex-grow: 1;
+  }
+
+  .menu li {
+    margin: 0;
+  }
+
+  .menu li a {
+    display: block;
+    padding: 12px 20px;
+    color: #c9d1d9;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .menu li a:hover,
+  .menu li a.active {
+    background-color: #30363d;
+    color: white;
+  }
+
+  .sidebar-footer {
+    padding: 15px 20px;
+    font-size: 0.85rem;
+    color: #8b949e;
+    border-top: 1px solid #444c56;
+  }
+
+  /* Botao fechar menu dentro da sidebar */
+  .btn-fechar {
+    display: none;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 28px;
+    color: white;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1100;
+  }
+
+  /* Main content */
+  .main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s ease;
+  }
+
+  .main.shifted {
+    margin-left: 220px;
+  }
+
+  /* Topbar */
+  header {
+    background-color: white;
+    padding: 0 20px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-bottom: 1px solid #e1e4e8;
+    box-shadow: 0 1px 0 rgba(27,31,35,0.1);
+    position: relative;
+  }
+
+  .username {
+    margin-right: 15px;
+    font-weight: 600;
+    color: #24292e;
+  }
+
+  button#btnPerfil {
+    background-color: transparent;
+    border: 1.5px solid #0366d6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  button#btnPerfil:hover {
+    background-color: #0366d6;
+    border-color: #024ea2;
+  }
+
+  button#btnPerfil svg {
+    display: block;
+  }
+
+  /* Botao hamburguer */
+  button#btnMenu {
+    position: absolute;
+    left: 10px;
+    top: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  button#btnMenu span {
+    display: block;
+    height: 4px;
+    background: #24292e;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  button#btnMenu span:nth-child(1) {
+    width: 24px;
+  }
+
+  button#btnMenu span:nth-child(2) {
+    width: 18px;
+  }
+
+  button#btnMenu span:nth-child(3) {
+    width: 24px;
+  }
+
+  /* Quando menu aberto, transformar hamburguer em X */
+  button#btnMenu.open span:nth-child(1) {
+    transform: rotate(45deg);
+    position: relative;
+    top: 10px;
+  }
+
+  button#btnMenu.open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  button#btnMenu.open span:nth-child(3) {
+    transform: rotate(-45deg);
+    position: relative;
+    top: -10px;
+  }
+
+  /* Content area */
+  .content {
+    padding: 20px;
+    background-color: white;
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+
+  /* Botoes internos do conteudo */
+  .content button {
+    background-color: #0366d6;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    margin-top: 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+  }
+
+  .content button:hover {
+    background-color: #024ea2;
+  }
+
+  /* Estilos inputs filtros hall da fama */
+  .filtros-hall {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .filtros-hall .linha-datas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .filtros-hall label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .filtros-hall input[type="date"],
+  .filtros-hall input[type="text"],
+  .filtros-hall select {
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    flex: 1 1 150px;
+    min-width: 120px;
+  }
+
+  .filtros-hall .campo-lastrcimento {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .filtros-hall .campo-ano,
+  .filtros-hall .campo-turma,
+  .filtros-hall .campo-nome-olimpiada {
+    flex: 1 1 150px;
+    min-width: 120px;
+  }
+
+  .filtros-hall button {
+    padding: 8px 16px;
+    background-color: #0366d6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+    margin-top: 10px;
+    align-self: flex-start;
+  }
+
+  .filtros-hall button:hover {
+    background-color: #024ea2;
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      z-index: 1000;
+      transform: translateX(-250px);
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .main {
+      margin-left: 0 !important;
+    }
+
+    button#btnMenu {
+      display: flex;
+    }
+
+    header {
+      justify-content: flex-end;
+      position: relative;
+    }
+
+    .username {
+      margin-right: 50px; /* espaco para o botao menu */
+    }
+
+    .btn-fechar {
+      display: block;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <nav class="sidebar closed" aria-label="Menu principal">
+      <button id="btnFecharMenu" aria-label="Fechar menu" title="Fechar menu" class="btn-fechar">
+        &times;
+      </button>
+      <div class="logo">Menu</div>
+      <ul class="menu">
+        <li><a href="#" class="active" data-section="inicio">Início</a></li>
+        <li><a href="#" data-section="cadastrar">Cadastrar Olimpíada</a></li>
+        <li><a href="#" data-section="correcao">Correção Gabarito</a></li>
+        <li><a href="#" data-section="resultados">Inserir Resultados</a></li>
+        <li><a href="#" data-section="alunos">Meus Alunos</a></li>
+        <li><a href="#" data-section="hall">Hall da Fama</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        Versao 1.0
+      </div>
+    </nav>
+
+    <main class="main">
+      <header>
+        <button id="btnMenu" aria-label="Abrir menu" title="Abrir menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="username" id="username">Carlos</div>
+        <button id="btnPerfil" aria-label="Perfil do usuario" title="Perfil">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#0366d6" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M12 14c-5 0-8 2.5-8 5v1h16v-1c0-2.5-3-5-8-5z"/>
+          </svg>
+        </button>
+      </header>
+
+      <section class="content" id="contentArea">
+        <h2>Bem-vindo, Carlos!</h2>
+        <p>Bem-vindo ao Painel do Professor!
+Este é o seu espaço para organizar, cadastrar e corrigir as Olimpíadas aplicadas aos seus alunos. Simplifique o acompanhamento dos resultados, visualize o desempenho dos participantes e celebre as conquistas no Hall da Fama. Navegue pelas opções do menu para gerenciar suas olimpíadas de forma prática e eficiente.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function normalizeText(text) {
+      return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    }
+
+    const nomeUsuario = "Carlos";
+    document.getElementById('username').textContent = nomeUsuario;
+
+    const alunosExemplo = [
+      {
+        nome: "Joao Silva",
+        dados: {
+          idade: 16,
+          escola: "Escola Estadual ABC",
+          turma: "3º Ano"
+        },
+        medalhas: [
+          { nome: "Ouro em Matematica", ano: "2023-04-15", olimpiada: "Matematica" },
+          { nome: "Prata em Fisica", ano: "2022-09-10", olimpiada: "Fisica" }
+        ]
+      },
+      {
+        nome: "Ana Pereira",
+        dados: {
+          idade: 15,
+          escola: "Colegio XYZ",
+          turma: "2º Ano"
+        },
+        medalhas: [
+          { nome: "Bronze em Quimica", ano: "2023-03-22", olimpiada: "Quimica" }
+        ]
+      },
+      {
+        nome: "Carlos Souza",
+        dados: {
+          idade: 17,
+          escola: "Escola Estadual ABC",
+          turma: "3º Ano"
+        },
+        medalhas: [
+          { nome: "Ouro em Biologia", ano: "2023-01-30", olimpiada: "Biologia" },
+          { nome: "Prata em Matematica", ano: "2021-11-05", olimpiada: "Matematica" },
+          { nome: "Bronze em Fisica", ano: "2020-10-20", olimpiada: "Fisica" }
+        ]
+      }
+    ];
+
+    const olimpiadasExemplo = [
+      { nome: "Olimpiada de Matematica", status: "Em andamento" },
+      { nome: "Olimpiada de Fisica", status: "Concluida" },
+      { nome: "Olimpiada de Quimica", status: "Em andamento" }
+    ];
+    const olimpiadasOrdenadas = olimpiadasExemplo.slice().sort((a, b) => {
+  if (a.status === "Em andamento" && b.status === "Concluída") return -1;
+  if (a.status === "Concluída" && b.status === "Em andamento") return 1;
+  return 0;
+});
+
+
+
+    function geraListaAlunos(filtro = "") {
+      filtro = normalizeText(filtro);
+      const filtrados = alunosExemplo.filter(aluno => {
+        const nome = normalizeText(aluno.nome);
+        const turma = normalizeText(aluno.dados.turma);
+        return nome.includes(filtro) || turma.includes(filtro);
+      });
+
+      if (filtrados.length === 0) {
+        return "<p>Nenhum aluno encontrado.</p>";
+      }
+      let html = `<ul>`;
+      filtrados.forEach((aluno, index) => {
+        const medalhasHtml = aluno.medalhas.length > 0
+          ? '<ul style="margin-top:5px; padding-left:18px;">' +
+            aluno.medalhas.map(m => `<li>${m.nome} (${new Date(m.ano).getFullYear()})</li>`).join('') +
+            '</ul>'
+          : "<p>Nenhuma medalha</p>";
+
+        html += `
+          <li style="margin-bottom: 10px;">
+            <strong>${aluno.nome} (${aluno.dados.turma})</strong>
+            <button class="btnDetalhar" data-index="${index}" style="margin-left:10px;padding:4px 8px;cursor:pointer;">Detalhar</button>
+            <div class="detalhesAluno" style="display:none; margin-top:8px; padding:8px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9;">
+              <p><strong>Idade:</strong> ${aluno.dados.idade}</p>
+              <p><strong>Escola:</strong> ${aluno.dados.escola}</p>
+              <p><strong>Turma:</strong> ${aluno.dados.turma}</p>
+              <p><strong>Medalhas:</strong></p>
+              ${medalhasHtml}
+            </div>
+          </li>
+        `;
+      });
+      html += `</ul>`;
+      return html;
+    }
+
+    function geraHallDaFama(filtros = {}) {
+      const { dataInicial, dataFinal, nomeOlimpiada, anoSelecionado, turmaSelecionada } = filtros;
+
+      const olimpiadaNorm = nomeOlimpiada ? normalizeText(nomeOlimpiada) : "";
+      const turmaNorm = turmaSelecionada ? normalizeText(turmaSelecionada) : "";
+      const anoNum = anoSelecionado ? Number(anoSelecionado) : null;
+
+      const integrantes = alunosExemplo.map(aluno => {
+        if (turmaNorm && turmaNorm !== "" && normalizeText(aluno.dados.turma) !== turmaNorm) {
+          return null;
+        }
+
+        const medalhasFiltradas = aluno.medalhas.filter(medalha => {
+          const anoMedalhaDate = new Date(medalha.ano);
+          if (dataInicial && anoMedalhaDate < dataInicial) return false;
+          if (dataFinal && anoMedalhaDate > dataFinal) return false;
+
+          if (anoNum && anoMedalhaDate.getFullYear() !== anoNum) return false;
+
+          if (olimpiadaNorm && olimpiadaNorm.length > 0) {
+            if (!normalizeText(medalha.olimpiada).includes(olimpiadaNorm)) return false;
+          }
+
+          return true;
+        });
+
+        if(medalhasFiltradas.length === 0){
+          return null;
+        }
+
+        return {
+          ...aluno,
+          medalhasFiltradas
+        };
+      }).filter(aluno => aluno !== null);
+
+      integrantes.sort((a,b) => b.medalhasFiltradas.length - a.medalhasFiltradas.length);
+
+      if(integrantes.length === 0){
+        return "<p>Nenhum integrante no Hall da Fama com esses filtros.</p>";
+      }
+
+      let html = `<ul>`;
+      integrantes.forEach(aluno => {
+        const medalhasHtml = aluno.medalhasFiltradas
+          .map(m => `<li>${m.nome} (${m.olimpiada}) - ${new Date(m.ano).toLocaleDateString()}</li>`)
+          .join('');
+        html += `
+          <li style="margin-bottom:12px; padding:10px; border:1px solid #ccc; border-radius:4px; background:#fafafa;">
+            <strong>${aluno.nome} (${aluno.dados.turma}) - Total de medalhas: ${aluno.medalhasFiltradas.length}</strong>
+            <ul style="margin-top:6px; padding-left:20px;">
+              ${medalhasHtml}
+            </ul>
+          </li>
+        `;
+      });
+      html += '</ul>';
+      return html;
+    }
+
+    //paera a aba de correção
+    const olimpiadasCorrigidasExemplo = [
+        { nome: "Olimpiada de Matematica 2026", dataResultado: "2026-08-01" },
+        { nome: "Olimpiada de Fisica 2022", dataResultado: "2022-08-01" },
+        { nome: "Olimpiada de Quimica 2023", dataResultado: "2023-07-15" }
+    ];
+    const hoje = new Date();
+    const olimpiadasValidas = olimpiadasCorrigidasExemplo.filter(o => new Date(o.dataResultado) >= hoje);
+
+
+
+    const conteudos = {
+      inicio: `
+        <h2>Bem-vindo, Carlos!</h2>
+        <br></br>
+        <p>Bem-vindo ao Painel do Professor!
+Este é o seu espaço para organizar, cadastrar e corrigir as Olimpíadas aplicadas aos seus alunos. Simplifique o acompanhamento dos resultados, visualize o desempenho dos participantes e celebre as conquistas no Hall da Fama. Navegue pelas opções do menu para gerenciar suas olimpíadas de forma prática e eficiente.</p>
+        
+      `,
+      cadastrar: `
+        <h2>Cadastrar Olimpíada</h2>
+        <p>Preencha o formulario para cadastrar uma nova Olimpiada no sistema.</p>
+        <button onclick="window.location.href='/'">Cadastrar nova olimpiada</button>
+        <br></br>
+        <ul>
+            ${olimpiadasOrdenadas.map((o, i) => `
+                <li style="margin-bottom:8px;">
+                    ${o.nome} - ${o.status}
+                    <button style="margin-left: 10px; padding:4px 8px; cursor:pointer;" onclick="alert('Editar ${o.nome}')">Editar</button>
+                </li>`
+            ).join('')}
+        </ul>
+
+      `,
+      correcao: `
+        <h2>Correção Gabarito</h2>
+        <p>Aqui você pode corrigir o gabarito da Olimpíada que aplicou, inclusive digitalizando-o por meio de uma foto para facilitar o processo.</p>
+        <button onclick="window.location.href='/correcaogaba.html'">Nova correção</button>
+        <br></br>
+        <h3>Olimpíadas em correção</h3>
+        <ul id="listaOlimpiadasCorrigidas">
+            ${olimpiadasValidas.map((o, i) => `
+            <li style="margin-bottom:8px;">
+                ${o.nome} 
+                <button style="margin-left:10px; padding:4px 8px; cursor:pointer;" onclick="alert('Visualizando ${o.nome}')">Visualizar</button>
+            </li>`).join('')}
+        </ul>
+        `,
+      resultados: `
+        <h2>Inserir Resultados</h2>
+        <p>Insira as notas de corte pra cada medalha, e de forma automatizada, visualize os alunos medalhistas e baixe a tabela de resultados.</p>
+        <button onclick="window.location.href='/inserirresult.html'">Inserir novo resultado</button>
+        <br></br>
+        
+        <p>Ou tambem você pode optar por inserir medalhas manualmente, sem precisar por nota de corte, pensando em controle de quantidade de medalhas.<p>
+        <button onclick="window.location.href='/inserirmedalha.html'">Inserir Medalhas</button>
+      `,
+      alunos: `
+        <h2>Meus Alunos</h2>
+        <p>Aqui esta a lista dos seus alunos cadastrados. Use o campo abaixo para filtrar por nome ou turma.</p>
+        <input type="text" id="filtroAlunos" placeholder="Pesquisar por nome, turma ou serie..." autofocus />
+        <div id="listaAlunos">${geraListaAlunos()}</div>
+      `,
+      hall: `
+        <h2>Hall da Fama</h2>
+        <p>Filtre os integrantes do Hall da Fama por periodo, nome da Olimpiada, ano e turma:</p>
+        <div class="filtros-hall">
+          <div class="linha-datas">
+            <div>
+              <label for="dataInicial">Data Inicial:</label><br />
+              <input type="date" id="dataInicial" />
+            </div>
+            <div>
+              <label for="dataFinal">Data Final:</label><br />
+              <input type="date" id="dataFinal" />
+            </div>
+          </div>
+          <div class="campo-nome-olimpiada" style="position:relative;">
+            <label for="nomeOlimpiada">Nome da Olimpiada:</label><br />
+            <input type="text" id="nomeOlimpiada" placeholder="Exemplo: Matematica" autocomplete="off" />
+            <div id="sugestoesOlimpiada"></div>
+          </div>
+          <div class="campo-lastrcimento">
+            <div class="campo-ano">
+              <label for="filtroAno">Ano:</label><br />
+              <select id="filtroAno">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div class="campo-turma">
+              <label for="filtroTurma">Turma:</label><br />
+              <select id="filtroTurma">
+                <option value="">Todas</option>
+              </select>
+            </div>
+          </div>
+          <button id="btnFiltrarHall">Filtrar</button>
+        </div>
+        <div id="listaHall">${geraHallDaFama({})}</div>
+      `
+    };
+
+    const contentArea = document.getElementById('contentArea');
+    const menuLinks = document.querySelectorAll('.menu li a');
+
+    function ativaSecao(sec) {
+      menuLinks.forEach(link => {
+        if (link.getAttribute('data-section') === sec) {
+          link.classList.add('active');
+          contentArea.innerHTML = conteudos[sec] || '<p>Conteudo nao encontrado.</p>';
+
+          if (sec === 'alunos') {
+            ativaEventosDetalhar();
+            const inputFiltro = document.getElementById('filtroAlunos');
+            inputFiltro.addEventListener('input', () => {
+              const filtro = inputFiltro.value;
+              atualizaListaAlunos(filtro);
+            });
+          } else if (sec === 'hall') {
+            montaFiltrosAnoTurma();
+            configuraFiltrosHall();
+          }
+        } else {
+          link.classList.remove('active');
+        }
+      });
+      if (window.innerWidth <= 768) {
+        closeMenu();
+      }
+    }
+
+    function montaFiltrosAnoTurma() {
+      const anosSet = new Set();
+      const turmasSet = new Set();
+      alunosExemplo.forEach(aluno => {
+        turmasSet.add(aluno.dados.turma);
+        aluno.medalhas.forEach(medalha => {
+          anosSet.add(new Date(medalha.ano).getFullYear());
+        });
+      });
+      const anosArray = Array.from(anosSet).sort((a,b) => b - a);
+      const turmasArray = Array.from(turmasSet).sort();
+
+      const selectAno = document.getElementById('filtroAno');
+      selectAno.innerHTML = '<option value="">Todos</option>';
+      anosArray.forEach(ano => {
+        const option = document.createElement('option');
+        option.value = ano;
+        option.textContent = ano;
+        selectAno.appendChild(option);
+      });
+
+      const selectTurma = document.getElementById('filtroTurma');
+      selectTurma.innerHTML = '<option value="">Todas</option>';
+      turmasArray.forEach(turma => {
+        const option = document.createElement('option');
+        option.value = turma;
+        option.textContent = turma;
+        selectTurma.appendChild(option);
+      });
+    }
+
+    function ativaEventosDetalhar() {
+      const botoesDetalhar = document.querySelectorAll('.btnDetalhar');
+      botoesDetalhar.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const li = btn.parentElement;
+          const detalhes = li.querySelector('.detalhesAluno');
+          if (detalhes.style.display === 'none') {
+            detalhes.style.display = 'block';
+            btn.textContent = 'Minimizar';
+          } else {
+            detalhes.style.display = 'none';
+            btn.textContent = 'Detalhar';
+          }
+        });
+      });
+    }
+
+    function atualizaListaAlunos(filtro) {
+      const html = geraListaAlunos(filtro);
+      const listaDiv = document.getElementById('listaAlunos');
+      listaDiv.innerHTML = html;
+      ativaEventosDetalhar();
+    }
+
+    function configuraFiltrosHall() {
+      const dataInicialInput = document.getElementById('dataInicial');
+      const dataFinalInput = document.getElementById('dataFinal');
+      const nomeOlimpiadaInput = document.getElementById('nomeOlimpiada');
+      const filtroAnoInput = document.getElementById('filtroAno');
+      const filtroTurmaInput = document.getElementById('filtroTurma');
+      const btnFiltrar = document.getElementById('btnFiltrarHall');
+      const sugestoesDiv = document.getElementById('sugestoesOlimpiada');
+
+      const today = new Date();
+      const startOfYear = new Date(today.getFullYear(), 0, 1);
+      dataInicialInput.value = startOfYear.toISOString().substring(0, 10);
+      dataFinalInput.value = today.toISOString().substring(0, 10);
+
+      const olimpiadasSet = new Set();
+      alunosExemplo.forEach(aluno => {
+        aluno.medalhas.forEach(medalha => {
+          olimpiadasSet.add(medalha.olimpiada);
+        });
+      });
+      const olimpiadasArray = Array.from(olimpiadasSet);
+
+      function mostrarSugestoes(texto) {
+        const normTexto = normalizeText(texto);
+        if (!texto || normTexto.length === 0) {
+          sugestoesDiv.style.display = 'none';
+          sugestoesDiv.innerHTML = '';
+          return;
+        }
+        const filtradas = olimpiadasArray.filter(o => normalizeText(o).includes(normTexto));
+        if (filtradas.length === 0) {
+          sugestoesDiv.style.display = 'none';
+          sugestoesDiv.innerHTML = '';
+          return;
+        }
+        sugestoesDiv.innerHTML = filtradas.map(o => `<div>${o}</div>`).join('');
+        sugestoesDiv.style.display = 'block';
+
+        const divs = sugestoesDiv.querySelectorAll('div');
+        divs.forEach(div => {
+          div.addEventListener('click', () => {
+            nomeOlimpiadaInput.value = div.textContent;
+            sugestoesDiv.style.display = 'none';
+          });
+        });
+      }
+
+      nomeOlimpiadaInput.addEventListener('input', (e) => {
+        mostrarSugestoes(e.target.value);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!nomeOlimpiadaInput.contains(e.target) && !sugestoesDiv.contains(e.target)) {
+          sugestoesDiv.style.display = 'none';
+        }
+      });
+
+      btnFiltrar.addEventListener('click', () => {
+        const filtros = {
+          dataInicial: dataInicialInput.value ? new Date(dataInicialInput.value) : null,
+          dataFinal: dataFinalInput.value ? new Date(dataFinalInput.value) : null,
+          nomeOlimpiada: nomeOlimpiadaInput.value || '',
+          anoSelecionado: filtroAnoInput.value || '',
+          turmaSelecionada: filtroTurmaInput.value || ''
+        };
+        const html = geraHallDaFama(filtros);
+        document.getElementById('listaHall').innerHTML = html;
+        sugestoesDiv.style.display = 'none';
+      });
+    }
+
+    menuLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const sec = link.getAttribute('data-section');
+        ativaSecao(sec);
+      });
+    });
+
+    document.getElementById('btnPerfil').addEventListener('click', () => {
+      alert(`Abrir configuracoes do perfil de ${nomeUsuario}`);
+    });
+
+    const sidebar = document.querySelector('.sidebar');
+    const main = document.querySelector('.main');
+    const btnMenu = document.getElementById('btnMenu');
+    const btnFecharMenu = document.getElementById('btnFecharMenu');
+
+    function openMenu() {
+      sidebar.classList.add('open');
+      sidebar.classList.remove('closed');
+      btnMenu.classList.add('open');
+    }
+
+    function closeMenu() {
+      sidebar.classList.remove('open');
+      sidebar.classList.add('closed');
+      btnMenu.classList.remove('open');
+    }
+
+    btnMenu.addEventListener('click', () => {
+      if (sidebar.classList.contains('open')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    btnFecharMenu.addEventListener('click', () => {
+      closeMenu();
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        sidebar.classList.remove('closed');
+        sidebar.classList.remove('open');
+        main.classList.add('shifted');
+      } else {
+        sidebar.classList.add('closed');
+        main.classList.remove('shifted');
+      }
+    });
+
+    if (window.innerWidth > 768) {
+      sidebar.classList.remove('closed');
+      main.classList.add('shifted');
+    } else {
+      ativaSecao('inicio');
+    }
+  </script>
+</body>
+</html>

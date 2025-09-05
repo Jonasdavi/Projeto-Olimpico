@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Correção de Gabarito da Olimpíada</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background-color: #0d1117;
+    color: #c9d1d9;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+  }
+  .container {
+    background-color: #161b22;
+    padding: 30px;
+    border-radius: 8px;
+    width: 600px;
+    box-shadow: 0 0 15px #30363d;
+  }
+  h1 {
+    font-weight: 600;
+    font-size: 24px;
+    color: #ffffff;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  #searchLabel {
+    margin-top: 15px;
+    margin-bottom: 6px;
+  }
+  #searchInput {
+    width: 100%;
+    padding: 8px 12px;
+    margin: 0 0 20px 0;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  #searchInput::placeholder {
+    color: #8b949e;
+  }
+  button {
+    background-color: #238636;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #2ea043;
+  }
+  .cancel-button {
+    background-color: #b22222;
+  }
+  .gabarito-entry {
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+  }
+  .input-row {
+    display: none;
+    gap: 10px;
+  }
+  .gabarito-entry input[type="text"],
+  .gabarito-entry textarea {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px;
+    color: #c9d1d9;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  .gabarito-entry input[type="text"] {
+    width: 180px;
+  }
+  .gabarito-entry input[type="text"]:disabled,
+  .gabarito-entry textarea:disabled {
+    background-color: #21262d;
+    color: #8b949e;
+  }
+  .gabarito-entry textarea {
+    flex-grow: 1;
+    height: 60px;
+    resize: vertical;
+  }
+  .buttons-row {
+    display: flex;
+    gap: 10px;
+  }
+  .buttons-row button:last-child {
+    margin-left: auto;
+  }
+  .image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+    margin-top: 5px;
+    object-fit: contain;
+  }
+  .erro {
+    color: #f85149;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .compact-view {
+    cursor: pointer;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 15px;
+    background-color: #0d1117;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .compact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 80%;
+  }
+  .compact-info span {
+    font-weight: 600;
+    font-size: 16px;
+    color: #c9d1d9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .compact-info small {
+    font-weight: 400;
+    font-size: 14px;
+    color: #8b949e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .compact-button {
+    background-color: #238636;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .compact-button:hover {
+    background-color: #2ea043;
+  }
+  .relative {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .suggestions {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    margin-top: 2px;
+    max-height: 80px;
+    overflow-y: auto;
+    position: absolute;
+    width: 180px;
+    z-index: 10;
+  }
+  .suggestions div {
+    padding: 5px 8px;
+    cursor: pointer;
+  }
+  .suggestions div:hover {
+    background-color: #30363d;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Correção de Gabarito da Olimpíada</h1>
+  <button id="addGabaritoBtn">+ Adicionar Gabarito</button>
+
+  <div id="expandedContainer"></div>
+
+  <label id="searchLabel" for="searchInput">Pesquisar aluno confirmado</label>
+  <input type="text" id="searchInput" placeholder="Pesquisar aluno confirmado..." />
+
+  <div id="compactContainer"></div>
+</div>
+
+<script>
+  const alunosCadastrados = ['Ana Silva', 'Bruno Souza', 'Carlos Lima', 'Diana Pereira', 'Eduardo Gomes', 'Fernanda Rocha'];
+  const addBtn = document.getElementById('addGabaritoBtn');
+  const expandedContainer = document.getElementById('expandedContainer');
+  const compactContainer = document.getElementById('compactContainer');
+  const searchInput = document.getElementById('searchInput');
+  const nomesConfirmados = new Set();
+
+  function createExpandedEntry() {
+    const entry = document.createElement('div');
+    entry.className = 'gabarito-entry';
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+
+    const buttonsRow = document.createElement('div');
+    buttonsRow.className = 'buttons-row';
+
+    const btnExcluir = document.createElement('button');
+    btnExcluir.type = 'button';
+    btnExcluir.textContent = 'Excluir';
+    btnExcluir.classList.add('cancel-button');
+
+    buttonsRow.appendChild(btnExcluir);
+
+    const inputRow = document.createElement('div');
+    inputRow.className = 'input-row';
+
+    const nomeWrapper = document.createElement('div');
+    nomeWrapper.className = 'relative';
+
+    const labelNome = document.createElement('label');
+    const nomeInput = document.createElement('input');
+    nomeInput.type = 'text';
+    nomeInput.placeholder = 'Nome do aluno';
+    nomeInput.autocomplete = 'off';
+    const nomeInputId = 'nomeInput-' + Math.random().toString(36).substr(2, 9);
+    nomeInput.id = nomeInputId;
+    labelNome.htmlFor = nomeInputId;
+    labelNome.textContent = 'Nome do aluno';
+
+    const suggestions = document.createElement('div');
+    suggestions.className = 'suggestions';
+    suggestions.style.display = 'none';
+
+    const erroDuplicado = document.createElement('div');
+    erroDuplicado.className = 'erro';
+    erroDuplicado.style.display = 'none';
+    erroDuplicado.textContent = 'Aluno já conferido!';
+
+    nomeWrapper.appendChild(labelNome);
+    nomeWrapper.appendChild(nomeInput);
+    nomeWrapper.appendChild(suggestions);
+    nomeWrapper.appendChild(erroDuplicado);
+
+    const labelGabarito = document.createElement('label');
+    const gabaritoInput = document.createElement('textarea');
+    const gabaritoInputId = 'gabaritoInput-' + Math.random().toString(36).substr(2, 9);
+    gabaritoInput.id = gabaritoInputId;
+    labelGabarito.htmlFor = gabaritoInputId;
+    labelGabarito.textContent = 'Gabarito do aluno';
+
+    gabaritoInput.placeholder = 'Gabarito do aluno';
+
+    inputRow.appendChild(nomeWrapper);
+    inputRow.appendChild(labelGabarito);
+    inputRow.appendChild(gabaritoInput);
+
+    const btnConfirmar = document.createElement('button');
+    btnConfirmar.type = 'button';
+    btnConfirmar.textContent = 'Confirmar';
+    btnConfirmar.style.display = 'none';
+
+    const imagePreview = document.createElement('img');
+    imagePreview.className = 'image-preview';
+    imagePreview.style.display = 'none';
+
+    entry.appendChild(buttonsRow);
+    entry.appendChild(inputRow);
+    entry.appendChild(btnConfirmar);
+    entry.appendChild(fileInput);
+    entry.appendChild(imagePreview);
+
+    let editingOldName = null;
+
+    // Quando clicar em "+ Adicionar Gabarito" principal, já cria a entrada e clica no input file
+    // Para isso, precisamos expor a criação da entrada e disparar o click do input
+    entry.openFileDialog = () => fileInput.click();
+
+    btnExcluir.addEventListener('click', () => {
+      entry.remove();
+      if (editingOldName) {
+        nomesConfirmados.delete(editingOldName);
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          imagePreview.src = reader.result;
+          imagePreview.style.display = 'block';
+          inputRow.style.display = 'flex';
+          btnConfirmar.style.display = 'inline-block';
+          btnExcluir.style.display = 'inline-block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    nomeInput.addEventListener('input', () => {
+      const val = nomeInput.value.toLowerCase();
+      erroDuplicado.style.display = 'none';
+      suggestions.innerHTML = '';
+      if (!val) {
+        suggestions.style.display = 'none';
+        return;
+      }
+      const filtered = alunosCadastrados.filter((a) => a.toLowerCase().includes(val));
+      if (filtered.length === 0) {
+        suggestions.style.display = 'none';
+        return;
+      }
+      filtered.forEach((aluno) => {
+        const div = document.createElement('div');
+        div.textContent = aluno;
+        div.addEventListener('click', () => {
+          nomeInput.value = aluno;
+          suggestions.style.display = 'none';
+          erroDuplicado.style.display = 'none';
+        });
+        suggestions.appendChild(div);
+      });
+      suggestions.style.display = 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!nomeWrapper.contains(e.target)) {
+        suggestions.style.display = 'none';
+      }
+    });
+
+    btnConfirmar.addEventListener('click', () => {
+      const nomeAluno = nomeInput.value.trim();
+      if (!nomeAluno) {
+        erroDuplicado.textContent = 'Digite o nome do aluno antes de confirmar.';
+        erroDuplicado.style.display = 'block';
+        return;
+      }
+      if (nomesConfirmados.has(nomeAluno) && nomeAluno !== editingOldName) {
+        erroDuplicado.style.display = 'block';
+        erroDuplicado.textContent = 'Aluno já conferido!';
+        return;
+      }
+      if (editingOldName && editingOldName !== nomeAluno) {
+        nomesConfirmados.delete(editingOldName);
+      }
+      nomesConfirmados.add(nomeAluno);
+
+      const compact = createCompactEntry(nomeAluno, gabaritoInput.value, entry, imagePreview.src);
+
+      compact.editingOldName = nomeAluno;
+
+      compactContainer.insertBefore(compact, compactContainer.firstChild);
+      entry.remove();
+      filterCompactList(searchInput.value);
+    });
+
+    // Função para preencher campos ao editar
+    function fillFields(nome, gabarito, imgSrc) {
+      editingOldName = nome;
+      nomeInput.value = nome;
+      gabaritoInput.value = gabarito || '';
+      imagePreview.src = imgSrc || '';
+      inputRow.style.display = imgSrc ? 'flex' : 'none';
+      btnConfirmar.style.display = imgSrc ? 'inline-block' : 'none';
+      imagePreview.style.display = imgSrc ? 'block' : 'none';
+      btnExcluir.style.display = 'inline-block';
+    }
+
+    entry.fillFields = fillFields;
+
+    return entry;
+  }
+
+  function createCompactEntry(nome, gabarito, expandedEntry, imgSrc) {
+    const compact = document.createElement('div');
+    compact.className = 'compact-view';
+
+    const info = document.createElement('div');
+    info.className = 'compact-info';
+
+    const nomeSpan = document.createElement('span');
+    nomeSpan.textContent = nome;
+
+    const gabaritoSmall = document.createElement('small');
+    gabaritoSmall.textContent = gabarito;
+
+    const imgPreviewSmall = document.createElement('img');
+    imgPreviewSmall.src = imgSrc || '';
+    imgPreviewSmall.style.maxWidth = '150px';
+    imgPreviewSmall.style.maxHeight = '100px';
+    imgPreviewSmall.style.borderRadius = '6px';
+    imgPreviewSmall.style.marginTop = '5px';
+    if (!imgSrc) {
+      imgPreviewSmall.style.display = 'none';
+    }
+
+    info.appendChild(nomeSpan);
+    info.appendChild(gabaritoSmall);
+    info.appendChild(imgPreviewSmall);
+
+    const btnEditar = document.createElement('button');
+    btnEditar.className = 'compact-button';
+    btnEditar.textContent = 'Voltar a Conferir';
+
+    btnEditar.addEventListener('click', () => {
+      expandedContainer.insertBefore(expandedEntry, expandedContainer.firstChild);
+      expandedEntry.fillFields(nome, gabarito, imgSrc);
+      compact.remove();
+    });
+
+    compact.appendChild(info);
+    compact.appendChild(btnEditar);
+
+    return compact;
+  }
+
+  function filterCompactList(searchTerm) {
+    const term = searchTerm.toLowerCase();
+    [...compactContainer.children].forEach((child) => {
+      if (child.classList.contains('compact-view')) {
+        const nome = child.querySelector('.compact-info span').textContent.toLowerCase();
+        child.style.display = nome.includes(term) ? '' : 'none';
+      }
+    });
+  }
+
+  addBtn.addEventListener('click', () => {
+    const novoGabarito = createExpandedEntry();
+    expandedContainer.insertBefore(novoGabarito, expandedContainer.firstChild);
+    novoGabarito.openFileDialog();
+  });
+
+  searchInput.addEventListener('input', () => {
+    filterCompactList(searchInput.value);
+  });
+</script>
+</body>
+</html>

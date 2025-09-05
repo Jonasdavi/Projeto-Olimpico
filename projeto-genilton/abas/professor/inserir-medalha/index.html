@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Inserção de Medalhas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background-color: #f6f8fa;
+    color: #24292e;
+    margin: 40px auto;
+    max-width: 900px;
+    padding: 20px;
+    user-select: none;
+  }
+  h2 {
+    font-weight: 600;
+    font-size: 2rem;
+    margin-bottom: 0.25em;
+    color: #24292e;
+  }
+  .autocomplete-container {
+    position: relative;
+    max-width: 320px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #495057;
+  }
+  .autocomplete-container label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .autocomplete-container input[type="text"] {
+    padding: 8px 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #d0d7de;
+    width: 100%;
+    color: #495057;
+    font-weight: 600;
+    transition: border-color 0.2s ease-in-out;
+  }
+  .autocomplete-container input[type="text"]:focus {
+    outline: none;
+    border-color: #0969da;
+    box-shadow: 0 0 7px 1px rgba(9, 105, 218, 0.45);
+  }
+  .autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-top: none;
+    z-index: 99;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 160px;
+    overflow-y: auto;
+    background: white;
+    font-weight: normal;
+    color: black;
+  }
+  .autocomplete-items div {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .autocomplete-items div:hover {
+    background-color: #d9eaff;
+  }
+  #insercaoMedalhas .premiacao-alunos {
+    margin-bottom: 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  #insercaoMedalhas .alunos-lista {
+    width: 100%;
+  }
+  #insercaoMedalhas .alunos-lista div.input-aluno-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+    position: relative;
+  }
+  #insercaoMedalhas .alunos-lista input.input-aluno {
+    flex-grow: 1;
+    max-width: 320px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #d0d7de;
+  }
+  #insercaoMedalhas .btn-add-aluno,
+  #insercaoMedalhas .btn-premiacao-remover,
+  #insercaoMedalhas .btn-remover,
+  #btnGerarTabela, #btnDownloadTabela {
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    padding: 5px 12px;
+    user-select: none;
+    transition: background-color 0.2s ease-in-out;
+  }
+  #insercaoMedalhas .btn-add-aluno {
+    color: white;
+    margin-left: 12px;
+  }
+  #insercaoMedalhas .btn-add-aluno.ouro { background-color: #ffd700; color: #333; }
+  #insercaoMedalhas .btn-add-aluno.prata { background-color: #c0c0c0; color: #333; }
+  #insercaoMedalhas .btn-add-aluno.bronze { background-color: #cd7f32; color: #333; }
+  #insercaoMedalhas .btn-add-aluno.outro { background-color: #2ea44f; }
+  #insercaoMedalhas .btn-remover,
+  #insercaoMedalhas .btn-premiacao-remover {
+    background-color: #bf616a;
+    color: white;
+    margin-left: 8px;
+  }
+  #insercaoMedalhas .btn-remover:hover,
+  #insercaoMedalhas .btn-premiacao-remover:hover,
+  #insercaoMedalhas .btn-add-aluno:hover,
+  #btnGerarTabela:hover,
+  #btnDownloadTabela:hover {
+    background-color: #a50e2e;
+    color: #fff;
+  }
+  #btnAddNovaPremiacao {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background-color: #2ea44f;
+    color: white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    margin-top: 10px;
+  }
+  #btnGerarTabela,
+  #btnDownloadTabela {
+    margin-top: 20px;
+    padding: 8px 16px;
+    background-color: #0969da;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  #tabelaMedalhas {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 7px rgb(0 0 0 / 0.05);
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+  #tabelaMedalhas th,
+  #tabelaMedalhas td {
+    text-align: left;
+    padding: 12px 15px;
+    border: 1px solid #d0d7de;
+    color: #2c3e50;
+  }
+  #tabelaMedalhas th {
+    background-color: #f0f4f8;
+    font-weight: 700;
+    color: #495057;
+  }
+  #tabelaMedalhas tr:last-child td {
+    border-bottom: none;
+  }
+  /* Aqui o estilo flex para input + botão lado a lado */
+  .input-nome-premiacao-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  @media (max-width: 600px) {
+    #insercaoMedalhas input.premiacao-nome,
+    #insercaoMedalhas .alunos-lista input.input-aluno,
+    #nomeOlimpiadaInput,
+    #nivelOlimpiadaInput {
+      width: 100%;
+      margin-right: 0;
+      max-width: none;
+    }
+    #insercaoMedalhas .premiacao-alunos {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    #insercaoMedalhas button,
+    #btnGerarTabela,
+    #btnDownloadTabela {
+      width: 100%;
+      margin-right: 0;
+    }
+    #tabelaMedalhas {
+      font-size: 0.9rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<section id="insercaoMedalhas">
+  <h2>Inserção de Medalhas</h2>
+
+  <div class="autocomplete-container">
+    <label for="nomeOlimpiadaInput">Nome da Olimpíada:</label>
+    <input id="nomeOlimpiadaInput" placeholder="Digite ou escolha a olimpíada" aria-label="Nome da Olimpíada" autocomplete="off" />
+    <div id="listaNomeOlimpiada" class="autocomplete-items"></div>
+  </div>
+
+  <div class="autocomplete-container">
+    <label for="nivelOlimpiadaInput">Nível:</label>
+    <input id="nivelOlimpiadaInput" placeholder="Digite ou escolha o nível" aria-label="Nível" autocomplete="off" />
+    <div id="listaNivelOlimpiada" class="autocomplete-items"></div>
+  </div>
+
+  <div id="premiacoesAlunosContainer">
+    <div class="premiacao-alunos" data-index="0">
+      <label>Ouro:</label>
+      <button type="button" class="btn-add-aluno ouro" data-index="0">Adicionar aluno</button>
+      <div class="alunos-lista"></div>
+    </div>
+    <div class="premiacao-alunos" data-index="1">
+      <label>Prata:</label>
+      <button type="button" class="btn-add-aluno prata" data-index="1">Adicionar aluno</button>
+      <div class="alunos-lista"></div>
+    </div>
+    <div class="premiacao-alunos" data-index="2">
+      <label>Bronze:</label>
+      <button type="button" class="btn-add-aluno bronze" data-index="2">Adicionar aluno</button>
+      <div class="alunos-lista"></div>
+    </div>
+  </div>
+
+  <button type="button" id="btnAddNovaPremiacao">Adicionar outra premiação</button>
+  <button type="button" id="btnGerarTabela">Gerar tabela</button>
+  <button type="button" id="btnDownloadTabela" disabled>Baixar tabela XLSX</button>
+
+  <table id="tabelaMedalhas" hidden>
+    <thead>
+      <tr><th>Premiação</th><th>Aluno(s)</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script>
+  const olimpíadas = [
+    "OBMEP",
+    "Mandacaru",
+    "Canguru",
+    "Matemática UFRJ",
+    "Olimpíada Fictícia",
+    "Olimpíada Nacional de Ciências",
+    "Desafio Matemático Regional"
+  ];
+
+  const niveis = [
+    "Ensino Fundamental Inicial",
+    "Ensino Fundamental Final",
+    "Ensino Médio",
+    "Ensino Médio Técnico",
+    "Nível Superior",
+    "Outro"
+  ];
+
+  const alunosDB = ["Maria", "João", "Ana", "Carlos", "Fernanda", "Paulo", "Larissa", "Rafael", "Julia", "Lucas"];
+
+  const premiacoesAlunosContainer = document.getElementById("premiacoesAlunosContainer");
+  const btnAddNovaPremiacao = document.getElementById("btnAddNovaPremiacao");
+  const btnGerarTabela = document.getElementById("btnGerarTabela");
+  const btnDownloadTabela = document.getElementById("btnDownloadTabela");
+  const tabelaMedalhas = document.getElementById("tabelaMedalhas");
+  const tbodyTabela = tabelaMedalhas.querySelector("tbody");
+  const nomeOlimpiadaInput = document.getElementById("nomeOlimpiadaInput");
+  const nivelOlimpiadaInput = document.getElementById("nivelOlimpiadaInput");
+  const listaNomeOlimpiada = document.getElementById("listaNomeOlimpiada");
+  const listaNivelOlimpiada = document.getElementById("listaNivelOlimpiada");
+
+  nivelOlimpiadaInput.value = niveis[0]; // valor padrão no nível
+
+  function setupAutocomplete(input, listElement, items) {
+    input.addEventListener("input", function() {
+      const val = this.value.toLowerCase();
+      listElement.innerHTML = "";
+      if (!val) return;
+      const filtered = items.filter(item => item.toLowerCase().includes(val));
+      filtered.forEach(item => {
+        const div = document.createElement("div");
+        div.textContent = item;
+        div.addEventListener("click", () => {
+          input.value = item;
+          listElement.innerHTML = "";
+          input.focus();
+        });
+        listElement.appendChild(div);
+      });
+    });
+
+    document.addEventListener("click", e => {
+      if (e.target !== input) {
+        listElement.innerHTML = "";
+      }
+    });
+  }
+
+  setupAutocomplete(nomeOlimpiadaInput, listaNomeOlimpiada, olimpíadas);
+  setupAutocomplete(nivelOlimpiadaInput, listaNivelOlimpiada, niveis);
+
+  function criarAlunoInput() {
+    const div = document.createElement("div");
+    div.className = "input-aluno-wrapper";
+    div.style.position = "relative";
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.marginBottom = "6px";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "input-aluno";
+    input.placeholder = "Nome do aluno (ex: Maria)";
+    input.style.flexGrow = "1";
+    input.style.maxWidth = "320px";
+    input.style.padding = "6px 10px";
+    input.style.borderRadius = "6px";
+    input.style.border = "1px solid #d0d7de";
+
+    input.addEventListener("input", function () {
+      fecharListasAutocomplete();
+      if (!this.value) return;
+      const val = this.value.toLowerCase();
+      const list = document.createElement("div");
+      list.setAttribute("class", "autocomplete-items");
+      list.style.position = "absolute";
+      list.style.border = "1px solid #d4d4d4";
+      list.style.borderTop = "none";
+      list.style.zIndex = "99";
+      list.style.backgroundColor = "white";
+      list.style.maxHeight = "120px";
+      list.style.overflowY = "auto";
+      list.style.width = this.offsetWidth + "px";
+
+      this.parentNode.appendChild(list);
+
+      alunosDB.forEach((aluno) => {
+        if (aluno.toLowerCase().includes(val)) {
+          const item = document.createElement("div");
+          item.style.padding = "10px";
+          item.style.cursor = "pointer";
+          item.innerHTML = aluno.replace(new RegExp(val, "i"), (match) => `<strong>${match}</strong>`);
+          item.addEventListener("click", () => {
+            input.value = aluno;
+            fecharListasAutocomplete();
+          });
+          list.appendChild(item);
+        }
+      });
+    });
+
+    function fecharListasAutocomplete(elmnt) {
+      const lists = document.getElementsByClassName("autocomplete-items");
+      for (let i = lists.length - 1; i >= 0; i--) {
+        if (elmnt !== lists[i] && elmnt !== input) {
+          lists[i].parentNode.removeChild(lists[i]);
+        }
+      }
+    }
+    document.addEventListener("click", (e) => fecharListasAutocomplete(e.target));
+
+    const btnRemover = document.createElement("button");
+    btnRemover.type = "button";
+    btnRemover.textContent = "Remover";
+    btnRemover.className = "btn-remover";
+    btnRemover.style.marginLeft = "8px";
+    btnRemover.addEventListener("click", () => {
+      if (div.parentNode) {
+        div.parentNode.removeChild(div);
+      }
+    });
+
+    div.appendChild(input);
+    div.appendChild(btnRemover);
+    return div;
+  }
+
+  premiacoesAlunosContainer.addEventListener("click", (e) => {
+    if (e.target.classList.contains("btn-add-aluno")) {
+      const premiacaoDiv = e.target.closest(".premiacao-alunos");
+      if (!premiacaoDiv) return;
+      const listaAlunosDiv = premiacaoDiv.querySelector(".alunos-lista");
+      const novoInput = criarAlunoInput();
+      listaAlunosDiv.appendChild(novoInput);
+    }
+  });
+
+  btnAddNovaPremiacao.addEventListener("click", () => {
+    const novaIndex = premiacoesAlunosContainer.children.length;
+    const divPremiacao = document.createElement("div");
+    divPremiacao.className = "premiacao-alunos";
+    divPremiacao.dataset.index = novaIndex;
+
+    divPremiacao.style.marginBottom = "1.5em";
+    divPremiacao.style.display = "flex";
+    divPremiacao.style.flexDirection = "column";
+    divPremiacao.style.alignItems = "flex-start";
+    divPremiacao.style.gap = "12px";
+
+    // Container para input nome e botão remover lado a lado
+    const containerNomeRemover = document.createElement("div");
+    containerNomeRemover.className = "input-nome-premiacao-container";
+
+    const inputNomePremiacao = document.createElement("input");
+    inputNomePremiacao.type = "text";
+    inputNomePremiacao.value = "Menção Honrosa";
+    inputNomePremiacao.className = "premiacao-nome";
+    inputNomePremiacao.style.fontWeight = "700";
+    inputNomePremiacao.style.color = "#495057";
+    inputNomePremiacao.style.width = "180px";
+    inputNomePremiacao.style.padding = "6px 10px";
+    inputNomePremiacao.style.border = "1px solid #d0d7de";
+    inputNomePremiacao.style.borderRadius = "6px";
+
+    const btnRemoverPremiacao = document.createElement("button");
+    btnRemoverPremiacao.type = "button";
+    btnRemoverPremiacao.textContent = "Remover premiação";
+    btnRemoverPremiacao.className = "btn-premiacao-remover";
+    btnRemoverPremiacao.style.marginLeft = "8px";
+    btnRemoverPremiacao.addEventListener("click", () => {
+      if (divPremiacao.parentNode) {
+        divPremiacao.parentNode.removeChild(divPremiacao);
+      }
+    });
+
+    containerNomeRemover.appendChild(inputNomePremiacao);
+    containerNomeRemover.appendChild(btnRemoverPremiacao);
+
+    const btnAddAluno = document.createElement("button");
+    btnAddAluno.type = "button";
+    btnAddAluno.textContent = "Adicionar aluno";
+    btnAddAluno.className = "btn-add-aluno outro";
+    btnAddAluno.dataset.index = novaIndex;
+    btnAddAluno.style.padding = "5px 12px";
+    btnAddAluno.style.borderRadius = "8px";
+    btnAddAluno.style.backgroundColor = "#2ea44f";
+    btnAddAluno.style.border = "none";
+    btnAddAluno.style.color = "#fff";
+    btnAddAluno.style.fontWeight = "600";
+    btnAddAluno.style.cursor = "pointer";
+
+    const alunosLista = document.createElement("div");
+    alunosLista.className = "alunos-lista";
+    alunosLista.style.marginTop = "8px";
+    alunosLista.style.flexBasis = "100%";
+    alunosLista.style.display = "flex";
+    alunosLista.style.flexDirection = "column";
+    alunosLista.style.gap = "6px";
+
+    divPremiacao.appendChild(containerNomeRemover);
+    divPremiacao.appendChild(btnAddAluno);
+    divPremiacao.appendChild(alunosLista);
+
+    premiacoesAlunosContainer.appendChild(divPremiacao);
+  });
+
+  btnGerarTabela.addEventListener("click", () => {
+    tbodyTabela.innerHTML = "";
+    const premiacoes = premiacoesAlunosContainer.querySelectorAll(".premiacao-alunos");
+    if (premiacoes.length === 0) {
+      tabelaMedalhas.hidden = true;
+      btnDownloadTabela.disabled = true;
+      return;
+    }
+    premiacoes.forEach(premiacao => {
+      let nomePremiacao = "";
+      const inputNome = premiacao.querySelector("input.premiacao-nome");
+      if (inputNome) {
+        nomePremiacao = inputNome.value.trim();
+      } else {
+        const label = premiacao.querySelector("label");
+        nomePremiacao = label ? label.textContent.trim() : "";
+      }
+      const alunosInputs = premiacao.querySelectorAll("input.input-aluno");
+      const alunos = [];
+      alunosInputs.forEach(ai => {
+        const v = ai.value.trim();
+        if (v) alunos.push(v);
+      });
+      if (nomePremiacao && alunos.length) {
+        const tr = document.createElement("tr");
+        const tdPremiacao = document.createElement("td");
+        tdPremiacao.textContent = nomePremiacao;
+        const tdAlunos = document.createElement("td");
+        tdAlunos.textContent = alunos.join(", ");
+        tr.appendChild(tdPremiacao);
+        tr.appendChild(tdAlunos);
+        tbodyTabela.appendChild(tr);
+      }
+    });
+    tabelaMedalhas.hidden = false;
+    btnDownloadTabela.disabled = false;
+  });
+
+  btnDownloadTabela.addEventListener("click", () => {
+    const rows = [["Lista de Medalhistas da " + (nomeOlimpiadaInput.value.trim() || "Olimpíada")]];
+    rows.push([]);
+    rows.push(["Premiação", "Alunos"]);
+
+    const trs = tabelaMedalhas.querySelectorAll("tbody tr");
+    trs.forEach(tr => {
+      const cols = tr.querySelectorAll("td");
+      if(cols.length === 2) {
+        rows.push([cols[0].textContent, cols[1].textContent]);
+      }
+    });
+
+    if(rows.length <= 3) return;
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Listas");
+
+    ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
+    ws["A1"].s = {
+      font: { name: "Arial", sz: 16, bold: true, color: { rgb: "20435c" } },
+      alignment: { horizontal: "center" }
+    };
+
+    ["A3", "B3"].forEach(cell => {
+      if(ws[cell]){
+        ws[cell].s = {
+          fill: { fgColor: { rgb: "dce6f1" }},
+          font: { bold: true, color: { rgb: "1f4e78" }},
+          alignment: { horizontal: "center", vertical: "center" },
+          border: {
+            top: { style: "thin", color: { rgb: "4f81bd" } },
+            bottom: { style: "thin", color: { rgb: "4f81bd" } },
+            left: { style: "thin", color: { rgb: "4f81bd" } },
+            right: { style: "thin", color: { rgb: "4f81bd" } }
+          }
+        }
+      }
+    });
+
+    XLSX.writeFile(wb, "listas_medalhistas_" + (nomeOlimpiadaInput.value.trim().replace(/\W+/g, "_") || "olimpiada") + ".xlsx", { bookType: "xlsx", cellStyles: true });
+  });
+</script>
+</body>
+</html>

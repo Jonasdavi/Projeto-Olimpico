@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resultado Olimpíada - Medalhistas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background-color: #f6f8fa;
+    color: #24292e;
+    margin: 40px auto;
+    max-width: 900px;
+    padding: 0 20px 40px;
+    user-select: none;
+  }
+  h1 {
+    font-weight: 600;
+    font-size: 2.8rem;
+    margin-bottom: 0.15em;
+    text-align: center;
+    color: #24292e;
+  }
+  label {
+    font-weight: 600;
+    color: #495057;
+    width: 160px;
+    display: inline-block;
+  }
+  input[type="text"], input[type="number"] {
+    padding: 8px 14px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #d0d7de;
+    transition: border-color 0.2s ease-in-out;
+    width: 160px;
+    margin-right: 14px;
+  }
+  input[type="text"]:focus, input[type="number"]:focus {
+    outline: none;
+    border-color: #0969da;
+    box-shadow: 0 0 7px 1px rgba(9, 105, 218, 0.45);
+  }
+  button {
+    padding: 10px 22px;
+    font-size: 1rem;
+    font-weight: 700;
+    background-color: #2ea44f;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.2s ease-in-out;
+    margin-top: 1.2em;
+    margin-right: 14px;
+  }
+  button:hover:not(:disabled) {
+    background-color: #238636;
+  }
+  button:disabled {
+    background-color: #94d3a2;
+    cursor: not-allowed;
+  }
+  .btn-remover {
+    background-color: #bf616a;
+    margin-left: 6px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    transition: background-color 0.2s ease-in-out;
+  }
+  .btn-remover:hover {
+    background-color: #a50e2e;
+  }
+  .premiacao-row {
+    margin-top: 1em;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .medalhistas-list {
+    margin-top: 0;
+    border-top: 2px solid #e1e4e8;
+    padding-top: 30px;
+    box-shadow: 0 5px 12px rgb(0 0 0 / 0.03);
+    border-radius: 12px;
+    background-color: white;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    box-shadow: 0 2px 7px rgb(0 0 0 / 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 1rem;
+  }
+  th, td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #e1e4e8;
+    text-align: left;
+    color: #2c3e50;
+  }
+  th {
+    background-color: #f0f4f8;
+    font-weight: 700;
+    color: #495057;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  .info {
+    margin-top: 12px;
+    font-style: italic;
+    color: #57606a;
+  }
+  @media (max-width: 600px) {
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      margin-right: 0;
+    }
+    .premiacao-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    button {
+      width: 100%;
+      margin-right: 0;
+    }
+  }
+  /* Novo container para nome e nível da olimpíada */
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .autocomplete-list {
+    position: relative;
+  }
+  .autocomplete-items {
+    position: absolute;
+    border: 1px solid #d0d7de;
+    border-top: none;
+    z-index: 99;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 160px;
+    overflow-y: auto;
+    background: white;
+  }
+  .autocomplete-items div {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .autocomplete-items div:hover {
+    background-color: #d9eaff;
+  }
+</style>
+</head>
+<body>
+
+<h1>Resultado da Olimpíada - Medalhistas</h1>
+
+<div class="form-group">
+  <div class="form-row autocomplete-list">
+    <label for="inputNomeOlimpiada">Nome da Olimpíada:</label>
+    <input type="text" id="inputNomeOlimpiada" placeholder="Digite ou escolha a olimpíada" autocomplete="off" />
+    <div id="listaNomeOlimpiada" class="autocomplete-items"></div>
+  </div>
+  <div class="form-row autocomplete-list">
+    <label for="inputNivelOlimpiada">Nível:</label>
+    <input type="text" id="inputNivelOlimpiada" placeholder="Digite ou escolha o nível" autocomplete="off" />
+    <div id="listaNivelOlimpiada" class="autocomplete-items"></div>
+  </div>
+</div>
+
+<section>
+  <h2>Definir notas de corte das premiações</h2>
+  <div id="premiacoesContainer">
+    <div class="premiacao-row" data-index="0">
+      <label>Ouro</label>
+      <input type="number" class="nota-premiacao" min="0" max="100" step="0.1" value="90" />
+    </div>
+    <div class="premiacao-row" data-index="1">
+      <label>Prata</label>
+      <input type="number" class="nota-premiacao" min="0" max="100" step="0.1" value="75" />
+    </div>
+    <div class="premiacao-row" data-index="2">
+      <label>Bronze</label>
+      <input type="number" class="nota-premiacao" min="0" max="100" step="0.1" value="60" />
+    </div>
+  </div>
+  <button type="button" id="btnAddPremiacao">Adicionar outra premiação</button>
+  <button type="button" id="btnAtualizar">Atualizar lista de medalhistas</button>
+  <button type="button" id="btnDownload" disabled>Baixar tabela XLSX</button>
+  <div class="info">Insira os nomes e notas de corte das premiações adicionais, depois clique em "Atualizar lista de medalhistas".</div>
+</section>
+
+<section class="medalhistas-list">
+  <div class="titulo-destaque">Medalhistas</div>
+  <div id="resultadoMedalhistas"></div>
+</section>
+
+<!-- SheetJS library -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script>
+  const olimpíadas = [
+    "OBMEP",
+    "Mandacaru",
+    "Canguru",
+    "Matemática UFRJ",
+    "Olimpíada Fictícia",
+    "Olimpíada Nacional de Ciências",
+    "Desafio Matemático Regional"
+  ];
+
+  const niveis = [
+    "Ensino Fundamental Inicial",
+    "Ensino Fundamental Final",
+    "Ensino Médio",
+    "Ensino Médio Técnico",
+    "Nível Superior",
+    "Outro"
+  ];
+
+  const alunosNotas = [
+    { nome: "Maria", nota: 95 },
+    { nome: "João", nota: 89 },
+    { nome: "Ana", nota: 82 },
+    { nome: "Carlos", nota: 77 },
+    { nome: "Fernanda", nota: 73 },
+    { nome: "Paulo", nota: 68 },
+    { nome: "Larissa", nota: 62 },
+    { nome: "Rafael", nota: 58 },
+    { nome: "Julia", nota: 55 },
+    { nome: "Lucas", nota: 45 }
+  ];
+
+  const premiacoesContainer = document.getElementById('premiacoesContainer');
+  const btnAddPremiacao = document.getElementById('btnAddPremiacao');
+  const btnAtualizar = document.getElementById('btnAtualizar');
+  const btnDownload = document.getElementById('btnDownload');
+  const resultadoDiv = document.getElementById('resultadoMedalhistas');
+
+  const inputNomeOlimpiada = document.getElementById('inputNomeOlimpiada');
+  const listaNomeOlimpiada = document.getElementById('listaNomeOlimpiada');
+  const inputNivelOlimpiada = document.getElementById('inputNivelOlimpiada');
+  const listaNivelOlimpiada = document.getElementById('listaNivelOlimpiada');
+
+  let medalhistas = [];
+  let firstAdded = false;
+
+  // Define o valor padrão do nível como o primeiro disponível da lista
+  inputNivelOlimpiada.value = niveis[0];
+
+  // Função para criar lista dinâmica de sugestões para o autocomplete
+  function setupAutocomplete(input, listaElement, items) {
+    input.addEventListener('input', function() {
+      const val = this.value.toLowerCase();
+      listaElement.innerHTML = '';
+      if (!val) return;
+
+      const filtered = items.filter(item => item.toLowerCase().includes(val));
+      filtered.forEach(item => {
+        const div = document.createElement('div');
+        div.textContent = item;
+        div.addEventListener('click', () => {
+          input.value = item;
+          listaElement.innerHTML = '';
+          input.focus();
+        });
+        listaElement.appendChild(div);
+      });
+    });
+
+    // Fechar a lista se clicar fora
+    document.addEventListener('click', function(e) {
+      if (e.target !== input) {
+        listaElement.innerHTML = '';
+      }
+    });
+  }
+
+  setupAutocomplete(inputNomeOlimpiada, listaNomeOlimpiada, olimpíadas);
+  setupAutocomplete(inputNivelOlimpiada, listaNivelOlimpiada, niveis);
+
+  function criarLinhaPremiacao(index, nome = '', nota = '') {
+    const div = document.createElement('div');
+    div.className = 'premiacao-row';
+    div.dataset.index = index;
+
+    const inputNome = document.createElement('input');
+    inputNome.type = 'text';
+    inputNome.className = 'nome-premiacao';
+    inputNome.placeholder = 'Nome da premiação';
+    inputNome.value = nome;
+
+    const inputNota = document.createElement('input');
+    inputNota.type = 'number';
+    inputNota.min = 0;
+    inputNota.max = 100;
+    inputNota.step = 0.1;
+    inputNota.className = 'nota-premiacao';
+    inputNota.placeholder = 'Nota de corte';
+    inputNota.value = nota;
+
+    const btnRemover = document.createElement('button');
+    btnRemover.type = 'button';
+    btnRemover.className = 'btn-remover';
+    btnRemover.textContent = 'Remover';
+    btnRemover.addEventListener('click', () => {
+      premiacoesContainer.removeChild(div);
+    });
+
+    div.appendChild(inputNome);
+    div.appendChild(inputNota);
+    div.appendChild(btnRemover);
+    return div;
+  }
+
+  btnAddPremiacao.addEventListener('click', () => {
+    const novosIndices = premiacoesContainer.children.length;
+    let nomePadrao = '';
+    if (!firstAdded) {
+      nomePadrao = 'Menção Honrosa';
+      firstAdded = true;
+    }
+    const novaLinha = criarLinhaPremiacao(novosIndices, nomePadrao);
+    premiacoesContainer.appendChild(novaLinha);
+  });
+
+  btnAtualizar.addEventListener('click', () => {
+    const premiacoes = [];
+    const rows = [...premiacoesContainer.querySelectorAll('.premiacao-row')];
+    for (const row of rows) {
+      const nomeInput = row.querySelector('.nome-premiacao, label')?.tagName === 'LABEL'
+        ? { value: row.querySelector('label').textContent }
+        : row.querySelector('.nome-premiacao');
+      const notaInput = row.querySelector('.nota-premiacao');
+      if (!nomeInput || !notaInput) continue;
+      const nome = nomeInput.value?.trim() ?? nomeInput.textContent.trim();
+      const nota = parseFloat(notaInput.value);
+      if (nome && !isNaN(nota)) {
+        premiacoes.push({ nome, nota });
+      }
+    }
+    premiacoes.sort((a, b) => b.nota - a.nota);
+
+    medalhistas = [];
+    for (const aluno of alunosNotas) {
+      const premiacaoAluno = premiacoes.find(p => aluno.nota >= p.nota);
+      if (premiacaoAluno) {
+        medalhistas.push({ aluno: aluno.nome, nota: aluno.nota, premiacao: premiacaoAluno.nome });
+      }
+    }
+
+    if (medalhistas.length === 0) {
+      resultadoDiv.innerHTML = '<p>Não há alunos que alcancem as notas de corte definidas.</p>';
+      btnDownload.disabled = true;
+      return;
+    }
+
+    let html = '<table><thead><tr><th>Aluno</th><th>Nota</th><th>Premiação</th></tr></thead><tbody>';
+    for (const m of medalhistas) {
+      html += `<tr><td>${m.aluno}</td><td>${m.nota}</td><td>${m.premiacao}</td></tr>`;
+    }
+    html += '</tbody></table>';
+    resultadoDiv.innerHTML = html;
+    btnDownload.disabled = false;
+  });
+
+  btnDownload.addEventListener('click', () => {
+    if (medalhistas.length === 0) return;
+
+    const nome = inputNomeOlimpiada.value.trim() || 'olimpiada_sem_nome';
+    const nivel = inputNivelOlimpiada.value.trim() || 'nivel_nao_informado';
+
+    const ws_data = [
+      [`Resultado da ${nome} - Nível: ${nivel}`],
+      [],
+      ["Aluno", "Nota", "Premiação"],
+      ...medalhistas.map(m => [m.aluno, m.nota, m.premiacao])
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+
+    ws['A1'].s = {
+      font: { name: "Arial", sz: 20, bold: true, color: { rgb: "20435c" } },
+      alignment: { horizontal: "center", vertical: "center" }
+    };
+
+    ["A3", "B3", "C3"].forEach(cell => {
+      if(ws[cell]) {
+        ws[cell].s = {
+          fill: { fgColor: { rgb: "dce6f1" } },
+          font: { bold: true, color: { rgb: "1f4e78" } },
+          alignment: { horizontal: "center", vertical: "center" },
+          border: {
+            top: { style: "thin", color: { rgb: "4f81bd" } },
+            bottom: { style: "thin", color: { rgb: "4f81bd" } },
+            left: { style: "thin", color: { rgb: "4f81bd" } },
+            right: { style: "thin", color: { rgb: "4f81bd" } },
+          }
+        };
+      }
+    });
+
+    for(let row=3; row < ws_data.length; row++) {
+      for(let col=0; col <=2; col++) {
+        const cellRef = XLSX.utils.encode_cell({r: row, c: col});
+        if(ws[cellRef]) {
+          ws[cellRef].s = {
+            alignment: { horizontal: col === 1 ? "center" : "left", vertical: "center" },
+            border: {
+              top: { style: "thin", color: { rgb: "d9d9d9" } },
+              bottom: { style: "thin", color: { rgb: "d9d9d9" } },
+              left: { style: "thin", color: { rgb: "d9d9d9" } },
+              right: { style: "thin", color: { rgb: "d9d9d9" } },
+            },
+            font: { color: { rgb: "2f2f2f" } }
+          };
+        }
+      }
+    }
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Medalhistas");
+    XLSX.writeFile(wb, `medalhistas_${nome.replace(/\W+/g, '_') || 'resultado'}_${nivel.replace(/\W+/g, '_') || 'nivel'}.xlsx`, { bookType: "xlsx", cellStyles: true });
+  });
+</script>
+
+</body>
+</html>

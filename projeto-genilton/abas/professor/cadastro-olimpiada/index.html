@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Cadastrar Olimpíada</title>
+<style>
+  /* ...mesmo CSS de antes... */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background-color: #0d1117;
+    color: #c9d1d9;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+  }
+
+  form#formOlimpiada {
+    background-color: #161b22;
+    padding: 30px;
+    border-radius: 8px;
+    width: 600px;
+    box-shadow: 0 0 15px #30363d;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  h1 {
+    font-weight: 600;
+    font-size: 24px;
+    color: #ffffff;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  label {
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  input[type="text"],
+  input[type="url"],
+  input[type="date"],
+  input[type="time"],
+  select {
+    width: 100%;
+    padding: 8px 12px;
+    margin-top: 4px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+  }
+
+  input[type="text"]:focus,
+  input[type="url"]:focus,
+  input[type="date"]:focus,
+  input[type="time"]:focus,
+  select:focus {
+    border-color: #58a6ff;
+    outline: none;
+  }
+
+  input[type="radio"] {
+    accent-color: #58a6ff;
+    margin-right: 6px;
+  }
+
+  button.add-btn {
+    background-color: #2d333b;
+    border: 1px solid #58a6ff;
+    border-radius: 6px;
+    color: #58a6ff;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+    margin-left: 8px;
+    vertical-align: middle;
+    padding: 4px 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  button.add-btn:hover {
+    background-color: #444c56;
+    color: #2ea043;
+  }
+  button.remove-btn {
+    background-color: #3f444e;
+    border: 1px solid #6e7681;
+    border-radius: 6px;
+    color: #8b949e;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+    margin-left: 8px;
+    vertical-align: middle;
+    padding: 2px 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  button.remove-btn:hover {
+    background-color: #57606a;
+    color: #adbac7;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #238636;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+  }
+  button[type="submit"]:hover {
+    background-color: #2ea043;
+  }
+
+  .fase-container, .nivel-container {
+    border: 1px solid #30363d;
+    padding: 15px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    background-color: #21262d;
+  }
+
+  .fase-titulo, .nivel-titulo {
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #58a6ff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .radio-group label {
+    display: inline-block;
+    margin-right: 20px;
+    font-weight: normal;
+  }
+
+  .grupo-info {
+    margin-top: -10px;
+    margin-bottom: 15px;
+    padding-left: 26px;
+  }
+
+  .grupo-info label {
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .local-prova-info {
+    margin-top: -10px;
+    margin-bottom: 15px;
+  }
+
+  .data-container {
+    margin-bottom: 15px;
+    border: 1px solid #444c56;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background-color: #161b22;
+  }
+
+  .horarios-container {
+    margin-left: 10px;
+    margin-bottom: 10px;
+  }
+
+  .horario-label-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .horario-label {
+    font-weight: 600;
+  }
+
+  .datas-label-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .datas-label-container label {
+    margin-bottom: 0;
+  }
+
+  .horario-input-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .horario-input-container input[type="time"] {
+    flex-grow: 1;
+  }
+
+  /* Layout para Quem inscreve stars */
+  .quem-inscreve-container {
+    margin-bottom: 14px;
+  }
+  .quem-inscreve-container label {
+    font-weight: normal;
+    display: block;
+    margin-bottom: 4px;
+  }
+  /* Layout para quantidade de fases */
+  .qtd-fases-container {
+    margin-bottom: 10px;
+  }
+  .qtd-fases-container label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .nivel-input-nome {
+    width: auto;
+    min-width: 150px;
+    margin-right: 10px;
+    font-weight: 600;
+  }
+  .nivel-serie-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .nivel-serie-container label {
+    font-weight: 600;
+  }
+  .nivel-serie-container select {
+    width: 160px;
+    padding: 6px 8px;
+  }
+  #addNivelBtn {
+    margin-top: 10px;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<form id="formOlimpiada">
+
+  <h1>Cadastrar Olimpíada</h1>
+
+  <div class="quem-inscreve-container">
+    <label>Quem inscreve:</label>
+    <label><input type="radio" name="inscreve" value="professor" checked> Professor</label>
+    <label><input type="radio" name="inscreve" value="aluno"> Aluno</label>
+  </div>
+
+  <div class="qtd-fases-container">
+    <label for="qtdFases">Quantidade de fases:</label>
+    <input type="number" id="qtdFases" name="qtdFases" min="1" max="20" value="1" />
+  </div>
+
+  <div id="fasesContainer"></div>
+
+  <!-- Container para os níveis -->
+  <div class="qtd-niveis-container">
+    <label>Níveis que você aplicará:</label>
+  </div>
+  <div id="niveisContainer"></div>
+  <button type="button" id="addNivelBtn" class="add-btn" title="Adicionar novo nível">Adicionar nível</button>
+
+  <label for="nomeOlimpiada">Nome da olimpíada:</label>
+  <select id="nomeOlimpiada" name="nomeOlimpiada">
+    <option value="obmep">OBMEP</option>
+    <option value="mandacaru">Mandacaru</option>
+    <option value="canguru">Canguru</option>
+    <option value="outro">Outro</option>
+  </select>
+
+  <input type="text" id="outroNome" name="outroNome" placeholder="Digite o nome da olimpíada" style="display:none;" />
+  <div id="avisoOutro" class="aviso" style="display:none;">
+    Ao escolher "outro" não damos suporte na correção do gabarito
+  </div>
+
+  <label for="periodoInscricao">Período de inscrição:</label>
+  <input type="text" id="periodoInscricao" name="periodoInscricao" placeholder="Ex: 01/01/2025 a 30/01/2025" />
+
+  <label for="siteOlimpiada">Site da olimpíada:</label>
+  <input type="url" id="siteOlimpiada" name="siteOlimpiada" placeholder="https://www.exemplo.com" />
+
+  <label for="linkInscricao">Link de inscrição:</label>
+  <input type="url" id="linkInscricao" name="linkInscricao" placeholder="https://www.inscricao.com" />
+
+  <button type="submit">Cadastrar</button>
+</form>
+
+<script>
+  const selectNome = document.getElementById('nomeOlimpiada');
+  const outroNome = document.getElementById('outroNome');
+  const avisoOutro = document.getElementById('avisoOutro');
+  const radiosInscreve = document.getElementsByName('inscreve');
+  const linkInscricao = document.getElementById('linkInscricao');
+  const qtdFases = document.getElementById('qtdFases');
+  const fasesContainer = document.getElementById('fasesContainer');
+
+  const niveisContainer = document.getElementById('niveisContainer');
+  const addNivelBtn = document.getElementById('addNivelBtn');
+
+  function atualizarViewOutro() {
+    if (selectNome.value === 'outro') {
+      outroNome.style.display = 'block';
+      avisoOutro.style.display = 'block';
+    } else {
+      outroNome.style.display = 'none';
+      avisoOutro.style.display = 'none';
+      outroNome.value = '';
+    }
+  }
+
+  function atualizarLinkInscricao() {
+    const quem = Array.from(radiosInscreve).find((r) => r.checked).value;
+    if (quem === 'professor') {
+      linkInscricao.value = 'professor inscreve';
+      linkInscricao.disabled = true;
+    } else {
+      linkInscricao.value = '';
+      linkInscricao.disabled = false;
+    }
+  }
+
+  function atualizarGrupoInfo(i) {
+    const grupoRadio = document.querySelector(`input[name="participacao${i}"][value="grupo"]`);
+    const grupoInfoDiv = document.getElementById(`grupoInfo${i}`);
+    if (grupoRadio.checked) {
+      grupoInfoDiv.style.display = 'block';
+    } else {
+      grupoInfoDiv.style.display = 'none';
+      grupoInfoDiv.querySelectorAll('input[type=number]').forEach((input) => (input.value = ''));
+    }
+  }
+
+  function atualizarLocalProva(i) {
+    const presencialRadio = document.querySelector(`input[name="modalidade${i}"][value="presencial"]`);
+    const localProvaDiv = document.getElementById(`localProva${i}`);
+    if (presencialRadio.checked) {
+      localProvaDiv.style.display = 'block';
+    } else {
+      localProvaDiv.style.display = 'none';
+      const inputLocal = localProvaDiv.querySelector('input[type="text"]');
+      if (inputLocal) inputLocal.value = '';
+    }
+  }
+
+  function adicionarHora(i, j) {
+    const container = document.getElementById(`horariosContainer${i}_${j}`);
+    const horarios = container.querySelectorAll('.horario-input-container');
+    const horarioCount = horarios.length + 1;
+
+    const div = document.createElement('div');
+    div.className = 'horario-input-container';
+
+    const input = document.createElement('input');
+    input.type = 'time';
+    input.name = `horaProva${i}_${j}_${horarioCount}`;
+    input.style.marginBottom = '0';
+
+    div.appendChild(input);
+
+    if (horarioCount > 1) {
+      const btnRemove = document.createElement('button');
+      btnRemove.type = 'button';
+      btnRemove.className = 'remove-btn';
+      btnRemove.textContent = 'Remover horário';
+      btnRemove.addEventListener('click', () => {
+        div.remove();
+      });
+      div.appendChild(btnRemove);
+    }
+
+    container.appendChild(div);
+  }
+
+  function criarData(i, dataIndex) {
+    const dataDiv = document.createElement('div');
+    dataDiv.className = 'data-container';
+    dataDiv.id = `dataContainer${i}_${dataIndex}`;
+
+    dataDiv.innerHTML = `
+      <div style="display:flex; align-items:center; margin-bottom:4px;">
+        <label for="dataProva${i}_${dataIndex}" style="margin-bottom:0;">Data da prova</label>
+      </div>
+      <input type="date" id="dataProva${i}_${dataIndex}" name="dataProva${i}_${dataIndex}" required />
+      <div id="horariosContainer${i}_${dataIndex}" class="horarios-container">
+        <div class="horario-label-container">
+          <label class="horario-label" for="horaProva${i}_${dataIndex}_1">Horário da prova:</label>
+          <button type="button" class="add-btn" title="Adicionar outro possível horário para esta data">Adicionar outro possível horário</button>
+        </div>
+        <div class="horario-input-container">
+          <input type="time" name="horaProva${i}_${dataIndex}_1" id="horaProva${i}_${dataIndex}_1" style="margin-bottom:8px" required />
+        </div>
+      </div>
+    `;
+
+    const btnAddHora = dataDiv.querySelector('button.add-btn');
+    btnAddHora.addEventListener('click', () => {
+      adicionarHora(i, dataIndex);
+    });
+
+    if (dataIndex > 1) {
+      const labelDiv = dataDiv.querySelector('div');
+      const btnRemoveData = document.createElement('button');
+      btnRemoveData.type = 'button';
+      btnRemoveData.className = 'remove-btn';
+      btnRemoveData.textContent = 'Remover data';
+      btnRemoveData.style.marginLeft = '8px';
+      btnRemoveData.addEventListener('click', () => {
+        dataDiv.remove();
+      });
+      labelDiv.appendChild(btnRemoveData);
+    }
+
+    return dataDiv;
+  }
+
+  function criarFases(num) {
+    fasesContainer.innerHTML = '';
+    for (let i = 1; i <= num; i++) {
+      const divFase = document.createElement('div');
+      divFase.className = 'fase-container';
+
+      divFase.innerHTML = `
+        <div class="fase-titulo">Fase ${i}</div>
+
+        <div class="datas-label-container" style="margin-bottom: 10px;">
+          <label>Data(s) da prova</label>
+          <button type="button" class="add-btn" id="addDataBtn${i}" title="Adicionar outra possível data">Adicionar outra possível data</button>
+        </div>
+
+        <div id="datasProvaContainer${i}"></div>
+
+        <label for="duracaoProva${i}">Duração da prova:</label>
+        <input type="time" id="duracaoProva${i}" name="duracaoProva${i}" />
+
+        <label for="dataResultado${i}">Data do resultado:</label>
+        <input type="date" id="dataResultado${i}" name="dataResultado${i}" />
+
+        <div class="radio-group">
+          <label>Tipo de participação:</label><br>
+          <label><input type="radio" name="participacao${i}" value="individual" checked /> Individual</label>
+          <label><input type="radio" name="participacao${i}" value="grupo" /> Grupo</label>
+        </div>
+
+        <div class="grupo-info" id="grupoInfo${i}" style="display:none;">
+          <label for="minComponentes${i}">Quantidade mínima de componentes:</label>
+          <input type="number" id="minComponentes${i}" name="minComponentes${i}" min="1" />
+
+          <label for="maxComponentes${i}">Quantidade máxima de componentes:</label>
+          <input type="number" id="maxComponentes${i}" name="maxComponentes${i}" min="1" />
+        </div>
+
+        <div class="radio-group">
+          <label>Modalidade:</label><br>
+          <label><input type="radio" name="modalidade${i}" value="presencial" checked /> Presencial</label>
+          <label><input type="radio" name="modalidade${i}" value="online" /> Online</label>
+        </div>
+
+        <div class="local-prova-info" id="localProva${i}" style="display:none;">
+          <label for="localProvaInput${i}">Local da prova:</label>
+          <input type="text" id="localProvaInput${i}" name="localProvaInput${i}" placeholder="Informe o local da prova" />
+        </div>
+
+        <div class="radio-group">
+          <label>Tipo de prova:</label><br>
+          <label><input type="radio" name="tipoProva${i}" value="objetiva" checked /> Objetiva</label>
+          <label><input type="radio" name="tipoProva${i}" value="discursiva" /> Discursiva</label>
+        </div>
+      `;
+
+      fasesContainer.appendChild(divFase);
+
+      const datasContainer = divFase.querySelector(`#datasProvaContainer${i}`);
+      datasContainer.appendChild(criarData(i, 1));
+
+      let dataCount = 1;
+
+      const btnAddData = divFase.querySelector(`#addDataBtn${i}`);
+      btnAddData.addEventListener('click', () => {
+        dataCount++;
+        datasContainer.appendChild(criarData(i, dataCount));
+      });
+
+      const radiosParticipacao = divFase.querySelectorAll(`input[name="participacao${i}"]`);
+      radiosParticipacao.forEach((radio) => {
+        radio.addEventListener('change', () => {
+          atualizarGrupoInfo(i);
+        });
+      });
+
+      const radiosModalidade = divFase.querySelectorAll(`input[name="modalidade${i}"]`);
+      radiosModalidade.forEach((radio) => {
+        radio.addEventListener('change', () => {
+          atualizarLocalProva(i);
+        });
+      });
+
+      atualizarGrupoInfo(i);
+      atualizarLocalProva(i);
+    }
+  }
+
+  function criarSelectSerie(id, name) {
+    const select = document.createElement('select');
+    select.id = id;
+    select.name = name;
+    select.required = true;
+
+    const grupos = {
+      "Ensino Fundamental": [
+        "1ª série EF", "2ª série EF", "3ª série EF", "4ª série EF", "5ª série EF",
+        "6ª série EF", "7ª série EF", "8ª série EF", "9ª série EF"
+      ],
+      "Ensino Médio": [
+        "1ª série EM", "2ª série EM", "3ª série EM", "4ª série EM"
+      ]
+    };
+
+    for (const grupo in grupos) {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = grupo;
+      grupos[grupo].forEach(serie => {
+        const option = document.createElement('option');
+        option.value = serie;
+        option.textContent = serie;
+        optgroup.appendChild(option);
+      });
+      select.appendChild(optgroup);
+    }
+
+    return select;
+  }
+
+  let nivelCount = 0;
+  function criarNivel() {
+    nivelCount++;
+    const divNivel = document.createElement('div');
+    divNivel.className = 'nivel-container';
+    divNivel.id = `nivel${nivelCount}`;
+
+    divNivel.innerHTML = `
+      <div class="nivel-titulo">
+        <div style="display: flex; flex-direction: column;">
+          <label for="nomeNivel${nivelCount}" style="font-weight: 600; margin-bottom: 4px;">Nível:</label>
+          <input type="text" class="nivel-input-nome" id="nomeNivel${nivelCount}" name="nomeNivel${nivelCount}" value="Nível ${nivelCount}" />
+        </div>
+        ${nivelCount > 1 ? '<button type="button" class="remove-btn" title="Remover nível">Remover</button>' : ''}
+      </div>
+      <div class="nivel-serie-container" id="serieContainer${nivelCount}">
+        <label for="serieInicio${nivelCount}">Série inicial:</label>
+        <span class="select-container" id="serieInicioContainer${nivelCount}"></span>
+        <label for="serieFim${nivelCount}">Série final:</label>
+        <span class="select-container" id="serieFimContainer${nivelCount}"></span>
+      </div>
+    `;
+
+    niveisContainer.appendChild(divNivel);
+
+    const serieInicioSpan = divNivel.querySelector(`#serieInicioContainer${nivelCount}`);
+    const serieFimSpan = divNivel.querySelector(`#serieFimContainer${nivelCount}`);
+
+    const selectSerieInicio = criarSelectSerie(`serieInicio${nivelCount}`, `serieInicio${nivelCount}`);
+    const selectSerieFim = criarSelectSerie(`serieFim${nivelCount}`, `serieFim${nivelCount}`);
+
+    serieInicioSpan.appendChild(selectSerieInicio);
+    serieFimSpan.appendChild(selectSerieFim);
+
+    // Definindo os valores padrão conforme requisitado
+    const valorInicioPadrao = "1ª série EM";
+    const valorFimPadrao = "4ª série EM";
+
+    if (selectSerieInicio.querySelector(`option[value="${valorInicioPadrao}"]`)) {
+      selectSerieInicio.value = valorInicioPadrao;
+    }
+    if (selectSerieFim.querySelector(`option[value="${valorFimPadrao}"]`)) {
+      selectSerieFim.value = valorFimPadrao;
+    }
+
+    if (nivelCount > 1) {
+      const btnRemove = divNivel.querySelector('button.remove-btn');
+      btnRemove.addEventListener('click', () => {
+        divNivel.remove();
+        atualizarNomesNiveis();
+      });
+    }
+  }
+
+  function atualizarNomesNiveis() {
+    const niveis = niveisContainer.querySelectorAll('.nivel-container');
+    niveis.forEach((nivel, index) => {
+      const numero = index + 1;
+      nivel.id = `nivel${numero}`;
+      const inputNome = nivel.querySelector('.nivel-input-nome');
+      inputNome.value = `Nível ${numero}`;
+      inputNome.id = `nomeNivel${numero}`;
+      inputNome.name = `nomeNivel${numero}`;
+
+      const serieInicioSelect = nivel.querySelector('select[name^="serieInicio"]');
+      const serieFimSelect = nivel.querySelector('select[name^="serieFim"]');
+
+      if (serieInicioSelect) {
+        serieInicioSelect.id = `serieInicio${numero}`;
+        serieInicioSelect.name = `serieInicio${numero}`;
+      }
+      if (serieFimSelect) {
+        serieFimSelect.id = `serieFim${numero}`;
+        serieFimSelect.name = `serieFim${numero}`;
+      }
+
+      let btnRemove = nivel.querySelector('button.remove-btn');
+      if (numero === 1) {
+        if (btnRemove) btnRemove.remove();
+      } else {
+        if (!btnRemove) {
+          btnRemove = document.createElement('button');
+          btnRemove.type = 'button';
+          btnRemove.className = 'remove-btn';
+          btnRemove.textContent = 'Remover';
+          btnRemove.title = 'Remover nível';
+          btnRemove.addEventListener('click', () => {
+            nivel.remove();
+            atualizarNomesNiveis();
+          });
+          const nivelTitulo = nivel.querySelector('.nivel-titulo');
+          nivelTitulo.appendChild(btnRemove);
+        }
+      }
+    });
+    nivelCount = niveis.length;
+  }
+
+  qtdFases.addEventListener('input', () => {
+    let qtd = Number(qtdFases.value);
+    if (qtd < 1) qtd = 1;
+    if (qtd > 20) qtd = 20;
+    qtdFases.value = qtd;
+    criarFases(qtd);
+  });
+
+  selectNome.addEventListener('change', atualizarViewOutro);
+  radiosInscreve.forEach(r => r.addEventListener('change', atualizarLinkInscricao));
+
+  addNivelBtn.addEventListener('click', () => {
+    criarNivel();
+    addNivelBtn.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  });
+
+  atualizarViewOutro();
+  atualizarLinkInscricao();
+  criarFases(Number(qtdFases.value));
+  criarNivel();
+
+  document.getElementById('formOlimpiada').addEventListener('submit', function(event) {
+    event.preventDefault();
+    alert('Formulário enviado!');
+  });
+</script>
+
+</body>
+</html>

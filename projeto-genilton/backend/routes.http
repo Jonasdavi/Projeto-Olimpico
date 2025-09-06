@@ -1,0 +1,21 @@
+POST http://localhost:3333/aluno
+Content-Type: application/json
+
+{
+    "nome" : "Jonas Davi de Souza Rocha",
+    "professores" : ["Genilton", "Macedo"],
+    "data_nascimento" : "2006-08-22",
+    "genero" : "Masculino",
+    "cpf" : "123456789",
+    "matricula" : "20231164010003",
+    "campus" : "SGA",
+    "curso" : "info",
+    "turno" : "Vespertino",
+    "ano_escolar" : "3 do médio",
+    "tipo_escola" : "publica",
+    "email" : "jonas.davi@escolar.ifrn",
+    "whatsapp" : "84999434390",
+    "senha" : "123456",
+    "medalhas" : ["teste1", "1"],
+    "olimpiadas" : ["teste1", 1, "teste1"]
+}

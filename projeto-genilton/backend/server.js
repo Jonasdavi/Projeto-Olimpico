@@ -1,8 +1,11 @@
 import {fastify} from 'fastify';
 import fastifyCors from '@fastify/cors';
 import {TabelaAluno, TabelaProfessor} from './database/tabelas.js'
+import { GeminiAI } from './gemini/gemini.js';
 
 const server= fastify();
+
+const gemini= new GeminiAI();
 
 const tAluno= new TabelaAluno();
 const tProf= new TabelaProfessor();
@@ -63,4 +66,36 @@ const teste={
     "senha" : "123456",
     "medalhas" : ["teste1", 1],
     "olimpiadas" : ["teste1", 1, "teste1"]
-}
+};
+
+
+
+//rotas para usar o gemini:
+
+server.post('/gemini/responderimg', async (req, rep)=>{
+    const {prompt, imgbase64}= req.body
+    
+
+
+    const respostaIA= await gemini.responderImg(prompt, imgbase64);
+
+    return rep.send(respostaIA);
+
+})
+
+server.post('/gemini/respondertexto', async (req, rep)=>{
+    const {prompt}= req.body
+    
+    const respostaIA= await gemini.responderTexto(prompt);
+
+    return rep.send(respostaIA);
+
+})
+
+
+server.listen({
+    host: '0.0.0.0',
+    port: process.env.PORT ?? 3333
+});
+
+//fim do gemini
